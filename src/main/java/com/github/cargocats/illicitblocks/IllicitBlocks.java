@@ -1,8 +1,11 @@
 package com.github.cargocats.illicitblocks;
 
+import com.github.cargocats.illicitblocks.item.BlockStateBlockItem;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -32,22 +35,35 @@ public class IllicitBlocks implements ModInitializer {
     public void onInitialize() {
         Registry.register(Registries.ITEM_GROUP, ILLICIT_BLOCKS_ITEM_GROUP_KEY, ILLICIT_BLOCKS_ITEM_GROUP);
 
-        Registries.BLOCK.forEach(block -> {
-            if (block != Blocks.AIR) {
-                if (block.asItem() == Items.AIR) {
-                    BlockItem item = new BlockItem(block, new Item.Settings().registryKey(
-                            RegistryKey.of(RegistryKeys.ITEM, Identifier.ofVanilla(Registries.BLOCK.getId(block).getPath()))
-                    ));
+        RegistryEntryAddedCallback.event(Registries.BLOCK).register((rawId, id, block) -> handleBlock(block));
+        Registries.BLOCK.forEach(this::handleBlock);
 
-                    Registry.register(Registries.ITEM, Registries.BLOCK.getId(block), item);
-
-                    ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY).register(itemGroup -> itemGroup.add(item));
-
-                    LOG.info("Loading in block: {}", block);
-                }
-            }
-        });
+        customBlocks();
 
         LOG.info("Loaded Illicit Blocks");
+    }
+
+    private void handleBlock(Block block) {
+        Identifier blockId = Registries.BLOCK.getId(block);
+        LOG.info("Attempt to handle block: {}, item form: {}", block, block.asItem());
+
+        if (block != Blocks.AIR && !Registries.ITEM.containsId(blockId)) {
+            BlockItem blockItem = new BlockItem(block, new Item.Settings().registryKey(
+                    RegistryKey.of(RegistryKeys.ITEM, Identifier.of(blockId.getNamespace(), Registries.BLOCK.getId(block).getPath()))
+            ));
+
+            Registry.register(Registries.ITEM, Registries.BLOCK.getId(block), blockItem);
+            ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY).register(itemGroup -> itemGroup.add(blockItem));
+
+            LOG.info("Adding in illicit block for block {}", block);
+        }
+    }
+
+    private void customBlocks() {
+        BlockStateBlockItem customBlockItem = new BlockStateBlockItem(Blocks.PISTON_HEAD, new Item.Settings().registryKey(
+                RegistryKey.of(RegistryKeys.ITEM, Identifier.ofVanilla(Registries.BLOCK.getId(Blocks.PISTON_HEAD).withSuffixedPath("_custom").getPath()))
+        ));
+
+        Registry.register(Registries.ITEM, Registries.BLOCK.getId(Blocks.PISTON_HEAD).withSuffixedPath("_custom"), customBlockItem);
     }
 }
