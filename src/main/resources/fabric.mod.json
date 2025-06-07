@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "illicitblocks",
+  "version": "${version}",
+  "name": "Illicit Blocks",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "LGPL-3.0",
+  "icon": "assets/illicitblocks/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "com.github.cargocats.illicitblocks.client.IllicitBlocksDataGenerator"
+    ],
+    "client": [
+      "com.github.cargocats.illicitblocks.client.IllicitBlocksClient"
+    ],
+    "main": [
+      "com.github.cargocats.illicitblocks.IllicitBlocks"
+    ]
+  },
+  "mixins": [
+    "illicitblocks.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
