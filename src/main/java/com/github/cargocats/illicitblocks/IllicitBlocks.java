@@ -21,6 +21,9 @@ import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class IllicitBlocks implements ModInitializer {
     public static final String MOD_ID = "illicitblocks";
     public static final Logger LOG = LoggerFactory.getLogger(MOD_ID);
@@ -45,10 +48,31 @@ public class IllicitBlocks implements ModInitializer {
 
     private void handleBlock(Block block) {
         Identifier blockId = Registries.BLOCK.getId(block);
-        LOG.info("Attempt to handle block: {}, item form: {}", block, block.asItem());
+        LOG.info(
+                "Attempt to handle block: {}, item form: {}, exists in item reg: {}",
+                block,
+                block.asItem(),
+                Registries.ITEM.containsId(blockId)
+        );
+
+        ArrayList<Identifier> toIgnore = new ArrayList<>();
+        toIgnore.add(Identifier.of("biomesoplenty", "blood"));
+        toIgnore.add(Identifier.of("biomesoplenty", "liquid_null"));
+        AtomicBoolean skip = new AtomicBoolean(false);
+
+        toIgnore.forEach(ignoreId -> {
+            if (blockId.equals(ignoreId)) {
+                skip.set(true);
+            }
+        });
+
+        if (skip.get()) {
+            LOG.info("Skipping block item registration for {}", block);
+            return;
+        }
 
         if (block != Blocks.AIR && !Registries.ITEM.containsId(blockId)) {
-            BlockItem blockItem = new BlockItem(block, new Item.Settings().registryKey(
+            BlockItem blockItem = new BlockStateBlockItem(block, new Item.Settings().registryKey(
                     RegistryKey.of(RegistryKeys.ITEM, Identifier.of(blockId.getNamespace(), Registries.BLOCK.getId(block).getPath()))
             ));
 
