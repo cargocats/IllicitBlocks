@@ -59,8 +59,9 @@ public class IllicitBlocks implements ModInitializer {
         );
 
         if (block != Blocks.AIR && !Registries.ITEM.containsId(blockId)) {
-            BlockItem blockItem = new BlockStateBlockItem(block, new Item.Settings().registryKey(
-                    RegistryKey.of(RegistryKeys.ITEM, Registries.BLOCK.getId(block)))
+            BlockItem blockItem = new BlockStateBlockItem(block, new Item.Settings()
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Registries.BLOCK.getId(block)))
+                    .useBlockPrefixedTranslationKey()
             );
 
             Registry.register(Registries.ITEM, Registries.BLOCK.getId(block), blockItem);
