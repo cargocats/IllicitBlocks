@@ -18,16 +18,16 @@ public class ConfigManager {
     public static Config config = new Config();
 
     public static void loadConfig() {
-        FabricLoader.getInstance().getConfigDir();
-
         if (CONFIG_FILE.exists()) {
             try (FileReader fileReader = new FileReader(CONFIG_FILE)) {
                 config = GSON.fromJson(fileReader, Config.class);
+                IllicitBlocks.LOG.info("Successfully config file");
             } catch (IOException ioExceptionError) {
                 IllicitBlocks.LOG.warn("Failed to read config file");
             }
         } else {
             saveConfig();
+            IllicitBlocks.LOG.info("No config file, generating blank one");
         }
     }
 
