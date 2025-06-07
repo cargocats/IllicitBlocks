@@ -36,12 +36,9 @@ public class BlockStateBlockItem extends BlockItem {
                 ? this.blockState
                 : getBlock().getDefaultState();
 
-        if (player != null) {
+        if (blockState.contains(Properties.FACING) && player != null) {
             blockState = blockState.with(Properties.FACING, player.getHorizontalFacing().getOpposite());
         }
-
-        IllicitBlocks.LOG.info("Contains facing: {}", blockState.contains(Properties.FACING));
-        IllicitBlocks.LOG.info("Player who placed: {}", player);
 
         if (!world.isClient) {
             BlockSoundGroup soundGroup = blockState.getSoundGroup();
