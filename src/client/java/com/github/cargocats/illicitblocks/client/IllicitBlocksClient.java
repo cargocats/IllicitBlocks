@@ -5,6 +5,7 @@ import com.github.cargocats.illicitblocks.IllicitBlocks;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
@@ -32,8 +33,15 @@ public class IllicitBlocksClient implements ClientModInitializer {
     }
 
     private void dumpBlocks(MinecraftClient client) {
+        ArrayList<Identifier> blocksToHandle = new ArrayList<>(IllicitBlocks.blocksToHandle);
+        blocksToHandle.removeIf(blockId -> {
+            boolean containedId = Registries.ITEM.containsId(blockId);
+            IllicitBlocks.LOG.info("Block {} contained id now? {}", blockId, containedId);
+            return containedId;
+        });
+
         ConfigManager.config.static_list =
-                IllicitBlocks.blocksToHandle.stream().map(Identifier::toString)
+                blocksToHandle.stream().map(Identifier::toString)
                         .collect(Collectors.toCollection(ArrayList::new));
 
         ConfigManager.saveConfig();
