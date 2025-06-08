@@ -21,9 +21,12 @@ import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 public class IllicitBlocks implements ModInitializer {
     public static final String MOD_ID = "illicitblocks";
     public static final Logger LOG = LoggerFactory.getLogger(MOD_ID);
+    public static final ArrayList<Identifier> blocksToHandle = new ArrayList<>();
 
     public static final RegistryKey<ItemGroup> ILLICIT_BLOCKS_ITEM_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, "illicitblocks_item_group"));
     public static final ItemGroup ILLICIT_BLOCKS_ITEM_GROUP = FabricItemGroup.builder()
@@ -46,10 +49,11 @@ public class IllicitBlocks implements ModInitializer {
     private void handleBlock(Block block) {
         Identifier blockId = Registries.BLOCK.getId(block);
 
-        if (ConfigManager.config.ignored_identifiers.contains(blockId.toString())) {
-            LOG.info("Ignoring block {}", blockId);
+        if (!shouldHandleBlock(blockId, true)) {
             return;
         }
+
+        blocksToHandle.add(blockId);
 
         LOG.info(
                 "Attempt to handle block id: {}, item form: {}, exists in item reg: {}",
@@ -69,5 +73,25 @@ public class IllicitBlocks implements ModInitializer {
 
             LOG.info("Adding in illicit block for block {}", block);
         }
+    }
+
+    public static boolean shouldHandleBlock(Identifier blockId, boolean debug) {
+        if ((
+                ConfigManager.config.excluded_identifiers.contains(blockId.toString()) || ConfigManager.config.excluded_namespaces.contains(blockId.getNamespace()))
+                && !ConfigManager.config.included_identifiers.contains(blockId.toString())
+        ) {
+            if (debug) LOG.info("Ignoring block {}", blockId);
+            return false;
+        }
+
+        if (
+                ConfigManager.config.use_static_list && !ConfigManager.config.static_list.contains(blockId.toString())
+                        && !ConfigManager.config.included_identifiers.contains(blockId.toString())
+        ) {
+            if (debug) LOG.info("Ignoring block because not in static and not in included identifiers {}", blockId);
+            return false;
+        }
+
+        return true;
     }
 }
