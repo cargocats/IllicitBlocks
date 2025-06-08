@@ -4,6 +4,7 @@ import com.github.cargocats.illicitblocks.ConfigManager;
 import com.github.cargocats.illicitblocks.IllicitBlocks;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
@@ -30,6 +31,8 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
             wasPressed = isDown;
         });
+
+        ModelLoadingPlugin.register(new IllicitModelPlugin());
     }
 
     private void dumpBlocks(MinecraftClient client) {
