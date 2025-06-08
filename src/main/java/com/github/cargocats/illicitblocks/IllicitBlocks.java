@@ -53,8 +53,6 @@ public class IllicitBlocks implements ModInitializer {
             return;
         }
 
-        blocksToHandle.add(blockId);
-
         LOG.info(
                 "Attempt to handle block id: {}, item form: {}, exists in item reg: {}",
                 blockId,
@@ -72,6 +70,7 @@ public class IllicitBlocks implements ModInitializer {
             ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY).register(itemGroup -> itemGroup.add(blockItem));
 
             LOG.info("Adding in illicit block for block {}", block);
+            blocksToHandle.add(blockId);
         }
     }
 
