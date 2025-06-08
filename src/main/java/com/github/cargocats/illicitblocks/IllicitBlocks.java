@@ -61,13 +61,15 @@ public class IllicitBlocks implements ModInitializer {
         );
 
         if (block != Blocks.AIR && !Registries.ITEM.containsId(blockId)) {
-            BlockItem blockItem = new BlockStateBlockItem(block, new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Registries.BLOCK.getId(block)))
-                    .useBlockPrefixedTranslationKey()
-            );
+            if (ConfigManager.config.register_block_items) {
+                BlockItem blockItem = new BlockStateBlockItem(block, new Item.Settings()
+                        .registryKey(RegistryKey.of(RegistryKeys.ITEM, Registries.BLOCK.getId(block)))
+                        .useBlockPrefixedTranslationKey()
+                );
 
-            Registry.register(Registries.ITEM, Registries.BLOCK.getId(block), blockItem);
-            ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY).register(itemGroup -> itemGroup.add(blockItem));
+                Registry.register(Registries.ITEM, Registries.BLOCK.getId(block), blockItem);
+                ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY).register(itemGroup -> itemGroup.add(blockItem));
+            }
 
             LOG.info("Adding in illicit block for block {}", block);
             blocksToHandle.add(blockId);
