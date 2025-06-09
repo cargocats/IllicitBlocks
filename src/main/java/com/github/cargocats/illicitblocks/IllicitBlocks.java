@@ -27,7 +27,7 @@ public class IllicitBlocks implements ModInitializer {
     public static final String MOD_ID = "illicitblocks";
     public static final Logger LOG = LoggerFactory.getLogger(MOD_ID);
     public static final ArrayList<Identifier> blocksToHandle = new ArrayList<>();
-    public static final boolean DEBUG_LOGGING = true;
+    public static boolean DEBUG_LOGGING;
 
     public static final RegistryKey<ItemGroup> ILLICIT_BLOCKS_ITEM_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, "illicitblocks_item_group"));
     public static final ItemGroup ILLICIT_BLOCKS_ITEM_GROUP = FabricItemGroup.builder()
@@ -38,6 +38,7 @@ public class IllicitBlocks implements ModInitializer {
     @Override
     public void onInitialize() {
         ConfigManager.loadConfig();
+        DEBUG_LOGGING = ConfigManager.config.debug;
 
         Registry.register(Registries.ITEM_GROUP, ILLICIT_BLOCKS_ITEM_GROUP_KEY, ILLICIT_BLOCKS_ITEM_GROUP);
 
@@ -54,14 +55,12 @@ public class IllicitBlocks implements ModInitializer {
             return;
         }
 
-        if (DEBUG_LOGGING) {
-            LOG.info(
-                    "Attempt to handle block id: {}, item form: {}, exists in item reg: {}",
-                    blockId,
-                    block.asItem(),
-                    Registries.ITEM.containsId(blockId)
-            );
-        }
+        Utils.debugLog(
+                "Attempt to handle block id: {}, item form: {}, exists in item reg: {}",
+                blockId,
+                block.asItem(),
+                Registries.ITEM.containsId(blockId)
+        );
 
         if (block != Blocks.AIR && !Registries.ITEM.containsId(blockId)) {
             if (ConfigManager.config.register_block_items) {
@@ -74,9 +73,7 @@ public class IllicitBlocks implements ModInitializer {
                 ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY).register(itemGroup -> itemGroup.add(blockItem));
             }
 
-            if (DEBUG_LOGGING) {
-                LOG.info("Adding in illicit block for block {}", block);
-            }
+            Utils.debugLog("Adding in illicit block for block {}", block);
 
             blocksToHandle.add(blockId);
         }
@@ -87,7 +84,7 @@ public class IllicitBlocks implements ModInitializer {
                 ConfigManager.config.excluded_identifiers.contains(blockId.toString()) || ConfigManager.config.excluded_namespaces.contains(blockId.getNamespace()))
                 && !ConfigManager.config.included_identifiers.contains(blockId.toString())
         ) {
-            if (DEBUG_LOGGING) LOG.info("Ignoring block {}", blockId);
+            Utils.debugLog("Ignoring block {}", blockId);
             return false;
         }
 
@@ -95,7 +92,7 @@ public class IllicitBlocks implements ModInitializer {
                 ConfigManager.config.use_static_list && !ConfigManager.config.static_list.contains(blockId.toString())
                         && !ConfigManager.config.included_identifiers.contains(blockId.toString())
         ) {
-            if (DEBUG_LOGGING) LOG.info("Ignoring block because not in static and not in included identifiers {}", blockId);
+            Utils.debugLog("Ignoring block because not in static and not in included identifiers {}", blockId);
             return false;
         }
 
