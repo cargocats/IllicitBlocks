@@ -8,5 +8,6 @@ public class Config {
     public ArrayList<String> included_identifiers = new ArrayList<>();
     public boolean use_static_list = false;
     public boolean register_block_items = true;
+    public boolean debug = true;
     public ArrayList<String> static_list = new ArrayList<>();
 }
