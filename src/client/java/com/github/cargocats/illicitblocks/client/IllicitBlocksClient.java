@@ -29,19 +29,9 @@ public class IllicitBlocksClient implements ClientModInitializer {
             IllicitBlocks.LOG.info("Registering assets");
 
             IllicitBlocks.blocksToHandle.forEach(id -> {
-                Block block = Registries.BLOCK.get(id);
-                var modelType = "block";
-                /*
-                if (block instanceof FluidBlock) {
-                    modelType = "";
-                    IllicitBlocks.LOG.info("Changing model type to fluid for block {}", block);
-                } */
-
-                // context.addAsset();
-
                 context.addAsset(id, new ItemAsset(
                         new BasicItemModel.Unbaked(
-                                Identifier.of(id.getNamespace(), modelType + "/" + id.getPath()),
+                                Identifier.of(id.getNamespace(), "block/" + id.getPath()),
                                 List.of()
                         ),
                         ItemAsset.Properties.DEFAULT
