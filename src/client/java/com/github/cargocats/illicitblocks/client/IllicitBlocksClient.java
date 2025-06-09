@@ -2,15 +2,19 @@ package com.github.cargocats.illicitblocks.client;
 
 import com.github.cargocats.illicitblocks.ConfigManager;
 import com.github.cargocats.illicitblocks.IllicitBlocks;
+import com.github.cargocats.illicitblocks.Utils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.item.ItemAsset;
+import net.minecraft.client.render.item.model.BasicItemModel;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class IllicitBlocksClient implements ClientModInitializer {
@@ -19,6 +23,36 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        handleKeybind();
+
+        AdditionalItemAssetRegistrationCallback.EVENT.register(context -> {
+            IllicitBlocks.LOG.info("Registering assets");
+
+            IllicitBlocks.blocksToHandle.forEach(id -> {
+                Block block = Registries.BLOCK.get(id);
+                var modelType = "block";
+                /*
+                if (block instanceof FluidBlock) {
+                    modelType = "";
+                    IllicitBlocks.LOG.info("Changing model type to fluid for block {}", block);
+                } */
+
+                // context.addAsset();
+
+                context.addAsset(id, new ItemAsset(
+                        new BasicItemModel.Unbaked(
+                                Identifier.of(id.getNamespace(), modelType + "/" + id.getPath()),
+                                List.of()
+                        ),
+                        ItemAsset.Properties.DEFAULT
+                ));
+            });
+
+            IllicitBlocks.LOG.info("Finished registering assets");
+        });
+    }
+
+    private void handleKeybind() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client == null || client.getWindow() == null) return;
 
@@ -31,15 +65,13 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
             wasPressed = isDown;
         });
-
-        ModelLoadingPlugin.register(new IllicitModelPlugin());
     }
 
     private void dumpBlocks(MinecraftClient client) {
         ArrayList<Identifier> blocksToHandle = new ArrayList<>(IllicitBlocks.blocksToHandle);
         blocksToHandle.removeIf(blockId -> {
             boolean containedId = Registries.ITEM.containsId(blockId);
-            IllicitBlocks.LOG.info("Block {} contained id now? {}", blockId, containedId);
+            Utils.debugLog("Block {} contained id now? {}", blockId, containedId);
             return containedId;
         });
 
@@ -49,6 +81,6 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
         ConfigManager.saveConfig();
 
-        IllicitBlocks.LOG.info("Dumped blocks to static_list for config");
+        IllicitBlocks.LOG.info("Dumped blocks to static_list for config, restart minecraft");
     }
 }
