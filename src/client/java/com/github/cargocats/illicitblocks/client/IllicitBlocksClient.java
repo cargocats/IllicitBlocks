@@ -5,7 +5,6 @@ import com.github.cargocats.illicitblocks.IllicitBlocks;
 import com.github.cargocats.illicitblocks.Utils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.ItemAsset;
 import net.minecraft.client.render.item.model.BasicItemModel;
