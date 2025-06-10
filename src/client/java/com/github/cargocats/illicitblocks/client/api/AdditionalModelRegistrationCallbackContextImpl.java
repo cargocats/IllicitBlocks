@@ -1,4 +1,4 @@
-package com.github.cargocats.illicitblocks.client;
+package com.github.cargocats.illicitblocks.client.api;
 
 import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.util.Identifier;

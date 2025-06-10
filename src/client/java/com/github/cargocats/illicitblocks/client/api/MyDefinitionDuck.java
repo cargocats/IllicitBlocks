@@ -1,4 +1,4 @@
-package com.github.cargocats.illicitblocks.client;
+package com.github.cargocats.illicitblocks.client.api;
 
 import java.util.Objects;
 import java.util.function.BiFunction;

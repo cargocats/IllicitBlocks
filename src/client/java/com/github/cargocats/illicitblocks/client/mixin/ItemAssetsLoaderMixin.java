@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.cargocats.illicitblocks.client.AdditionalItemAssetRegistrationCallback;
-import com.github.cargocats.illicitblocks.client.AdditionalItemAssetRegistrationCallbackContextImpl;
-import com.github.cargocats.illicitblocks.client.MyDefinitionDuck;
+import com.github.cargocats.illicitblocks.client.api.AdditionalItemAssetRegistrationCallback;
+import com.github.cargocats.illicitblocks.client.api.AdditionalItemAssetRegistrationCallbackContextImpl;
+import com.github.cargocats.illicitblocks.client.api.MyDefinitionDuck;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import org.jetbrains.annotations.Nullable;

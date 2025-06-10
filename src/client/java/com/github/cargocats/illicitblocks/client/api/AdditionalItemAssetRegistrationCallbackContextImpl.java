@@ -1,9 +1,8 @@
-package com.github.cargocats.illicitblocks.client;
+package com.github.cargocats.illicitblocks.client.api;
 
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-import com.github.cargocats.illicitblocks.client.MyDefinitionDuck;
 import com.google.common.base.Functions;
 import org.jetbrains.annotations.Nullable;
 

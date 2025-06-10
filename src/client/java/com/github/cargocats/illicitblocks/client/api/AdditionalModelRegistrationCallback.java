@@ -1,6 +1,5 @@
-package com.github.cargocats.illicitblocks.client;
+package com.github.cargocats.illicitblocks.client.api;
 
-import java.util.HashMap;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;

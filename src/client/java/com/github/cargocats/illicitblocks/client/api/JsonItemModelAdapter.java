@@ -1,4 +1,4 @@
-package com.github.cargocats.illicitblocks.client;
+package com.github.cargocats.illicitblocks.client.api;
 
 import com.github.cargocats.illicitblocks.IllicitBlocks;
 import com.mojang.serialization.MapCodec;

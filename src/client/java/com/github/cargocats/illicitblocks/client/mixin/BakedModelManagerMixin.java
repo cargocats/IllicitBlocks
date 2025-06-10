@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.cargocats.illicitblocks.client.AdditionalModelRegistrationCallback;
-import com.github.cargocats.illicitblocks.client.AdditionalModelRegistrationCallbackContextImpl;
+import com.github.cargocats.illicitblocks.client.api.AdditionalModelRegistrationCallback;
+import com.github.cargocats.illicitblocks.client.api.AdditionalModelRegistrationCallbackContextImpl;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
