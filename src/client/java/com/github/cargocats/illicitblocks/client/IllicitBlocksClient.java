@@ -8,6 +8,7 @@ import com.github.cargocats.illicitblocks.client.api.AdditionalModelRegistration
 import com.google.gson.JsonObject;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CropBlock;
@@ -191,6 +192,12 @@ public class IllicitBlocksClient implements ClientModInitializer {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
                 JsonObject textures = new JsonObject();
                 textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_bottom");
+                jsonRoot.add("textures", textures);
+            }
+            case AbstractFireBlock abstractFireBlock -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
+                JsonObject textures = new JsonObject();
+                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_0");
                 jsonRoot.add("textures", textures);
             }
             default -> {
