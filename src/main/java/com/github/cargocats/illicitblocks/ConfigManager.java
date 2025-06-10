@@ -33,11 +33,7 @@ public class ConfigManager {
 
     public static void saveConfig() {
         try {
-            var success = CONFIG_FILE.getParentFile().mkdirs();
-            if (!success) {
-                IllicitBlocks.LOG.warn("Failed to write directories");
-                return;
-            }
+            CONFIG_FILE.getParentFile().mkdirs();
 
             try (FileWriter fileWriter = new FileWriter(CONFIG_FILE)) {
                 GSON.toJson(config, fileWriter);
