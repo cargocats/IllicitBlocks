@@ -19,4 +19,3 @@ public interface MyDefinitionDuck {
         return Objects.requireNonNull(CTOR.getValue(), "not init").apply(id, asset);
     }
 }
-

@@ -5,16 +5,16 @@ import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 
-import com.github.cargocats.illicitblocks.Utils;
 import com.github.cargocats.illicitblocks.client.AdditionalItemAssetRegistrationCallback;
+import com.github.cargocats.illicitblocks.client.AdditionalItemAssetRegistrationCallbackContextImpl;
 import com.github.cargocats.illicitblocks.client.MyDefinitionDuck;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import net.minecraft.client.item.ItemAsset;
@@ -22,11 +22,6 @@ import net.minecraft.client.item.ItemAssetsLoader;
 import net.minecraft.registry.ContextSwappableRegistryLookup;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
-
-/*
-    ItemAssetsLoaderMixin, AdditionalItemAssetRegistrationCallback, MyDefinitionDuck
-    Thanks to TheWhyEvenHow
- */
 
 @Mixin(ItemAssetsLoader.class)
 public class ItemAssetsLoaderMixin {
@@ -39,48 +34,9 @@ public class ItemAssetsLoaderMixin {
     )
     private static CompletableFuture<List<MyDefinitionDuck>> appendAdditional(CompletableFuture<List<MyDefinitionDuck>> original, @Local(argsOnly = true) DynamicRegistryManager.Immutable immutable) {
         return original.thenApply(list -> {
-            ContextSwappableRegistryLookup contextSwappableRegistryLookup = new ContextSwappableRegistryLookup(immutable);
-            ArrayList<MyDefinitionDuck> definitions = new ArrayList<>(list);
-            var context = new AdditionalItemAssetRegistrationCallback.Context() {
-
-                @Override
-                public Stream<MyDefinitionDuck> streamAssets() {
-                    return definitions.stream();
-                }
-
-                @Override
-                public @Nullable ItemAsset getAsset(Identifier id) {
-                    return definitions.stream()
-                            .filter(it -> it.modid$myDefinitionDuck$id() == id)
-                            .findAny()
-                            .map(MyDefinitionDuck::modid$myDefinitionDuck$itemAsset)
-                            .orElse(null);
-                }
-
-                @Override
-                public void addAsset(Identifier id, ItemAsset asset) {
-                    if (definitions.stream().map(MyDefinitionDuck::modid$myDefinitionDuck$id).anyMatch(id::equals)) {
-                        throw new IllegalStateException("Attempting to add duplicate ItemAsset definition");
-                    }
-
-                    definitions.add(MyDefinitionDuck.create(
-                                    id,
-                                    contextSwappableRegistryLookup.hasEntries()
-                                            ? asset.withContextSwapper(
-                                            contextSwappableRegistryLookup.createContextSwapper()
-                                    )
-                                            : asset
-                            )
-                    );
-                }
-
-                @Override
-                public ContextSwappableRegistryLookup getLookup() {
-                    return contextSwappableRegistryLookup;
-                }
-            };
+            AdditionalItemAssetRegistrationCallbackContextImpl context = new AdditionalItemAssetRegistrationCallbackContextImpl(new ArrayList<>(list), new ContextSwappableRegistryLookup(immutable));
             AdditionalItemAssetRegistrationCallback.EVENT.invoker().onItemAssetRegistration(context);
-            return List.copyOf(definitions);
+            return List.copyOf(context.definitions());
         });
     }
 
@@ -90,27 +46,32 @@ public class ItemAssetsLoaderMixin {
         public abstract Identifier id();
 
         @Shadow
-        public abstract @Nullable ItemAsset clientItemInfo();
+        @Nullable
+        public abstract ItemAsset clientItemInfo();
 
         static {
-            @SuppressWarnings("JavaLangInvokeHandleSignature")
-            var ctorHandle = Utils.rethrowing(
-                    () -> MethodHandles.lookup().findConstructor(
-                            DefinitionMixin.class,
-                            MethodType.methodType(
-                                    void.class,
-                                    Identifier.class,
-                                    ItemAsset.class
-                            )
-                    )
-            ).asType(
-                    MethodType.methodType(
-                            MyDefinitionDuck.class,
-                            Identifier.class,
-                            ItemAsset.class
-                    )
-            );
-            MyDefinitionDuck.CTOR.setValue((id, asset) -> Utils.rethrowing(() -> (MyDefinitionDuck) ctorHandle.invokeExact(id, asset)));
+            try {
+                @SuppressWarnings("JavaLangInvokeHandleSignature")
+                var ctorHandle = MethodHandles.lookup().findConstructor(
+                        DefinitionMixin.class,
+                        MethodType.methodType(
+                                void.class, Identifier.class, ItemAsset.class
+                        )
+                ).asType(
+                        MethodType.methodType(
+                                MyDefinitionDuck.class, Identifier.class, ItemAsset.class
+                        )
+                );
+                MyDefinitionDuck.CTOR.setValue((id, asset) -> {
+                    try {
+                        return (MyDefinitionDuck) ctorHandle.invokeExact(id, asset);
+                    } catch (Throwable t) {
+                        throw rethrow(t);
+                    }
+                });
+            } catch (Throwable t) {
+                throw rethrow(t);
+            }
         }
 
         @Override
@@ -121,6 +82,12 @@ public class ItemAssetsLoaderMixin {
         @Override
         public ItemAsset modid$myDefinitionDuck$itemAsset() {
             return this.clientItemInfo();
+        }
+
+        @Unique
+        @SuppressWarnings("unchecked")
+        private static <T extends Throwable> RuntimeException rethrow(Throwable t) throws T {
+            throw (T) t;
         }
     }
 }
