@@ -69,9 +69,7 @@ public class IllicitBlocks implements ModInitializer {
         });
 
         for (Identifier id : moddedBlocks) {
-            LOG.info("Modded block {}", id);
             BlockStateBlockItem item = tryRegisterBlock(id);
-            LOG.info("BLockstateblockitem {}", item);
             if (item != null) collected.add(item);
         }
 
