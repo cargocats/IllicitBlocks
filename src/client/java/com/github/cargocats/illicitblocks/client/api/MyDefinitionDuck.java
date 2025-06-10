@@ -1,12 +1,11 @@
 package com.github.cargocats.illicitblocks.client.api;
 
-import java.util.Objects;
-import java.util.function.BiFunction;
-
-import org.apache.commons.lang3.mutable.MutableObject;
-
 import net.minecraft.client.item.ItemAsset;
 import net.minecraft.util.Identifier;
+import org.apache.commons.lang3.mutable.MutableObject;
+
+import java.util.Objects;
+import java.util.function.BiFunction;
 
 public interface MyDefinitionDuck {
     MutableObject<BiFunction<Identifier, ItemAsset, MyDefinitionDuck>> CTOR = new MutableObject<>();

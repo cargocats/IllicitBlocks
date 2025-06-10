@@ -3,7 +3,6 @@ package com.github.cargocats.illicitblocks.client.api;
 import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
-
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;

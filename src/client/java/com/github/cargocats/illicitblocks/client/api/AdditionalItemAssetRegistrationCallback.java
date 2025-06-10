@@ -1,18 +1,19 @@
 package com.github.cargocats.illicitblocks.client.api;
 
 
-import java.util.Objects;
-import java.util.stream.Stream;
-import net.minecraft.component.DataComponentTypes;
-import org.jetbrains.annotations.Nullable;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.item.ItemAsset;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.registry.ContextSwappableRegistryLookup;
 import net.minecraft.registry.ContextSwapper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
+import java.util.stream.Stream;
 
 public interface AdditionalItemAssetRegistrationCallback {
     Event<AdditionalItemAssetRegistrationCallback> EVENT = EventFactory.createArrayBacked(

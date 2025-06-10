@@ -1,15 +1,14 @@
 package com.github.cargocats.illicitblocks.client.api;
 
-import java.util.ArrayList;
-import java.util.stream.Stream;
-
 import com.google.common.base.Functions;
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.client.item.ItemAsset;
 import net.minecraft.registry.ContextSwappableRegistryLookup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.stream.Stream;
 
 public record AdditionalItemAssetRegistrationCallbackContextImpl(ArrayList<MyDefinitionDuck> definitions, ContextSwappableRegistryLookup contextSwappableRegistryLookup) implements AdditionalItemAssetRegistrationCallback.Context {
     @Override
