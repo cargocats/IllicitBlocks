@@ -14,6 +14,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.CropBlock;
 import net.minecraft.block.FlowerPotBlock;
 import net.minecraft.block.FluidBlock;
+import net.minecraft.block.MapColor;
+import net.minecraft.block.StemBlock;
 import net.minecraft.block.TallPlantBlock;
 import net.minecraft.block.WallBannerBlock;
 import net.minecraft.block.WallHangingSignBlock;
@@ -26,6 +28,7 @@ import net.minecraft.client.render.item.model.SpecialItemModel;
 import net.minecraft.client.render.item.model.special.BannerModelRenderer;
 import net.minecraft.client.render.item.model.special.HeadModelRenderer;
 import net.minecraft.client.render.item.tint.ConstantTintSource;
+import net.minecraft.client.render.item.tint.MapColorTintSource;
 import net.minecraft.client.render.item.tint.TintSource;
 import net.minecraft.client.render.model.json.JsonUnbakedModel;
 import net.minecraft.client.toast.SystemToast;
@@ -111,8 +114,10 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
         List<TintSource> tintSources = new ArrayList<>();
 
-        if (id.equals(Identifier.ofVanilla("water"))) {
-            tintSources.add(new ConstantTintSource(ColorHelper.getArgb(63, 118, 228)));
+        switch (id.toString()) {
+            case "minecraft:water" -> tintSources.add(new ConstantTintSource(ColorHelper.getArgb(63, 118, 228)));
+            case "minecraft:melon_stem", "minecraft:pumpkin_stem" -> tintSources.add(new MapColorTintSource(MapColor.get(7).color));
+            default -> {}
         }
 
         switch (block) {
@@ -198,6 +203,12 @@ public class IllicitBlocksClient implements ClientModInitializer {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
                 JsonObject textures = new JsonObject();
                 textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_0");
+                jsonRoot.add("textures", textures);
+            }
+            case StemBlock stemBlock -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
+                JsonObject textures = new JsonObject();
+                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath());
                 jsonRoot.add("textures", textures);
             }
             default -> {
