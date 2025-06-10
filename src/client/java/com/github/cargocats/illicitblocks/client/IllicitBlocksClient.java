@@ -3,15 +3,18 @@ package com.github.cargocats.illicitblocks.client;
 import com.github.cargocats.illicitblocks.ConfigManager;
 import com.github.cargocats.illicitblocks.IllicitBlocks;
 import com.github.cargocats.illicitblocks.Utils;
+import com.google.gson.JsonObject;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.ItemAsset;
 import net.minecraft.client.render.item.model.BasicItemModel;
+import net.minecraft.client.render.model.json.JsonUnbakedModel;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,19 +28,29 @@ public class IllicitBlocksClient implements ClientModInitializer {
         handleKeybind();
 
         AdditionalItemAssetRegistrationCallback.EVENT.register(context -> {
-            IllicitBlocks.LOG.info("Registering assets");
-
             IllicitBlocks.blocksToHandle.forEach(id -> {
+                if (context.hasAsset(id)) return;
+
                 context.addAsset(id, new ItemAsset(
                         new BasicItemModel.Unbaked(
-                                Identifier.of(id.getNamespace(), "block/" + id.getPath()),
+                                id,
                                 List.of()
                         ),
                         ItemAsset.Properties.DEFAULT
                 ));
             });
+        });
 
-            IllicitBlocks.LOG.info("Finished registering assets");
+        AdditionalModelRegistrationCallback.EVENT.register(context -> {
+            IllicitBlocks.blocksToHandle.forEach(id -> {
+                if (context.hasModel(id)) return;
+
+                JsonObject jsonRoot = new JsonObject();
+                jsonRoot.addProperty("parent", "block/" + id.getPath());
+                jsonRoot.addProperty("gui_light", "front");
+
+                context.addModel(id, JsonUnbakedModel.deserialize(new StringReader(jsonRoot.toString())));
+            });
         });
     }
 
