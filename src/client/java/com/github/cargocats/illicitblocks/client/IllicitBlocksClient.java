@@ -2,6 +2,7 @@ package com.github.cargocats.illicitblocks.client;
 
 import com.github.cargocats.illicitblocks.ConfigManager;
 import com.github.cargocats.illicitblocks.IllicitBlocks;
+import com.github.cargocats.illicitblocks.Utils;
 import com.github.cargocats.illicitblocks.client.api.AdditionalItemAssetRegistrationCallback;
 import com.github.cargocats.illicitblocks.client.api.AdditionalModelRegistrationCallback;
 import com.google.gson.JsonObject;
@@ -12,6 +13,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.CropBlock;
 import net.minecraft.block.FlowerPotBlock;
 import net.minecraft.block.FluidBlock;
+import net.minecraft.block.TallPlantBlock;
 import net.minecraft.block.WallBannerBlock;
 import net.minecraft.block.WallHangingSignBlock;
 import net.minecraft.block.WallSignBlock;
@@ -112,35 +114,29 @@ public class IllicitBlocksClient implements ClientModInitializer {
             tintSources.add(new ConstantTintSource(ColorHelper.getArgb(63, 118, 228)));
         }
 
-        if (block instanceof WallBannerBlock wallBannerBlock) {
-            context.addAsset(id, new ItemAsset(
+        switch (block) {
+            case WallBannerBlock wallBannerBlock -> context.addAsset(id, new ItemAsset(
                     new SpecialItemModel.Unbaked(
                             Identifier.ofVanilla("item/template_banner"),
                             new BannerModelRenderer.Unbaked(wallBannerBlock.getColor())
                     ),
                     ItemAsset.Properties.DEFAULT
             ));
-            return;
-        }
-
-        if (block instanceof WallSkullBlock wallSkullBlock) {
-            context.addAsset(id, new ItemAsset(
+            case WallSkullBlock wallSkullBlock -> context.addAsset(id, new ItemAsset(
                     new SpecialItemModel.Unbaked(
                             Identifier.ofVanilla("item/template_skull"),
                             new HeadModelRenderer.Unbaked(wallSkullBlock.getSkullType())
                     ),
                     ItemAsset.Properties.DEFAULT
             ));
-            return;
+            default -> context.addAsset(id, new ItemAsset(
+                    new BasicItemModel.Unbaked(
+                            id,
+                            tintSources
+                    ),
+                    ItemAsset.Properties.DEFAULT
+            ));
         }
-
-        context.addAsset(id, new ItemAsset(
-                new BasicItemModel.Unbaked(
-                        id,
-                        tintSources
-                ),
-                ItemAsset.Properties.DEFAULT
-        ));
     }
 
     public static void addModelForId(AdditionalModelRegistrationCallback.Context context, Identifier id) {
@@ -191,7 +187,16 @@ public class IllicitBlocksClient implements ClientModInitializer {
                 textures.addProperty("plant", id.getNamespace() + ":block/" + id.getPath().replace("potted_", ""));
                 jsonRoot.add("textures", textures);
             }
-            default -> jsonRoot.addProperty("parent", "block/" + id.getPath());
+            case TallPlantBlock tallPlantBlock -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
+                JsonObject textures = new JsonObject();
+                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_bottom");
+                jsonRoot.add("textures", textures);
+            }
+            default -> {
+                Utils.debugLog("Default back to block for {}, class: {}", id, block.getClass());
+                jsonRoot.addProperty("parent", "block/" + id.getPath());
+            }
         }
 
         context.addModel(id, JsonUnbakedModel.deserialize(new StringReader(jsonRoot.toString())));
