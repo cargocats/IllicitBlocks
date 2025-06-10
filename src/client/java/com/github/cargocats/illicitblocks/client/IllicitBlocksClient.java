@@ -150,45 +150,48 @@ public class IllicitBlocksClient implements ClientModInitializer {
         JsonObject jsonRoot = new JsonObject();
         jsonRoot.addProperty("gui_light", "front");
 
-        if (block instanceof FluidBlock) {
-            jsonRoot.addProperty("parent", "minecraft:item/generated");
+        switch (block) {
+            case FluidBlock fluidBlock -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-            JsonObject textures = new JsonObject();
-            textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_still");
-            jsonRoot.add("textures", textures);
-        } else if (block instanceof CropBlock) {
-            jsonRoot.addProperty("parent", "block/" + id.getPath() + "_stage0");
-        } else if (block instanceof WallSignBlock wallSignBlock) {
-            jsonRoot.addProperty("parent", "minecraft:item/generated");
-
-            JsonObject textures = new JsonObject();
-            String woodName = wallSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
-            if (id.getNamespace().equals("terrestria")) {
-                woodName = extractWoodType(id.toString());
+                JsonObject textures = new JsonObject();
+                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_still");
+                jsonRoot.add("textures", textures);
             }
+            case CropBlock cropBlock -> jsonRoot.addProperty("parent", "block/" + id.getPath() + "_stage0");
+            case WallSignBlock wallSignBlock -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-            String itemTextureString = id.getNamespace() + ":item/" + woodName + "_sign";
-            textures.addProperty("layer0", itemTextureString);
-            jsonRoot.add("textures", textures);
-        } else if (block instanceof WallHangingSignBlock wallHangingSignBlock) {
-            jsonRoot.addProperty("parent", "minecraft:item/generated");
+                JsonObject textures = new JsonObject();
+                String woodName = wallSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
+                if (id.getNamespace().equals("terrestria")) {
+                    woodName = extractWoodType(id.toString());
+                }
 
-            JsonObject textures = new JsonObject();
-            String woodName = wallHangingSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
-            if (id.getNamespace().equals("terrestria")) {
-                woodName = extractWoodType(id.toString());
+                String itemTextureString = id.getNamespace() + ":item/" + woodName + "_sign";
+                textures.addProperty("layer0", itemTextureString);
+                jsonRoot.add("textures", textures);
             }
+            case WallHangingSignBlock wallHangingSignBlock -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-            textures.addProperty("layer0", id.getNamespace() + ":item/" + woodName + "_hanging_sign");
-            jsonRoot.add("textures", textures);
-        } else if (block instanceof FlowerPotBlock flowerPotBlock && !id.getNamespace().equals("minecraft")) {
-            jsonRoot.addProperty("parent", "minecraft:block/flower_pot_cross");
+                JsonObject textures = new JsonObject();
+                String woodName = wallHangingSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
+                if (id.getNamespace().equals("terrestria")) {
+                    woodName = extractWoodType(id.toString());
+                }
 
-            JsonObject textures = new JsonObject();
-            textures.addProperty("plant", id.getNamespace() + ":block/" + id.getPath().replace("potted_", ""));
-            jsonRoot.add("textures", textures);
-        }  else {
-            jsonRoot.addProperty("parent", "block/" + id.getPath());
+                textures.addProperty("layer0", id.getNamespace() + ":item/" + woodName + "_hanging_sign");
+                jsonRoot.add("textures", textures);
+            }
+            case FlowerPotBlock flowerPotBlock when !id.getNamespace().equals("minecraft") -> {
+                jsonRoot.addProperty("parent", "minecraft:block/flower_pot_cross");
+
+                JsonObject textures = new JsonObject();
+                textures.addProperty("plant", id.getNamespace() + ":block/" + id.getPath().replace("potted_", ""));
+                jsonRoot.add("textures", textures);
+            }
+            default -> jsonRoot.addProperty("parent", "block/" + id.getPath());
         }
 
         context.addModel(id, JsonUnbakedModel.deserialize(new StringReader(jsonRoot.toString())));
