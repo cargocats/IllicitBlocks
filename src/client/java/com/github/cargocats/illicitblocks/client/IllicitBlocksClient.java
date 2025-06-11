@@ -8,6 +8,7 @@ import com.github.cargocats.illicitblocks.client.api.AdditionalModelRegistration
 import com.google.gson.JsonObject;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
@@ -44,8 +45,12 @@ import net.minecraft.client.render.item.tint.MapColorTintSource;
 import net.minecraft.client.render.item.tint.TintSource;
 import net.minecraft.client.render.model.json.JsonUnbakedModel;
 import net.minecraft.client.toast.SystemToast;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.BlockStateComponent;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 
@@ -80,6 +85,22 @@ public class IllicitBlocksClient implements ClientModInitializer {
         });
 
         ClientLifecycleEvents.CLIENT_STARTED.register(this::dumpBlocks);
+
+        // TODO: Cache results?
+        ItemTooltipCallback.EVENT.register((itemStack, context, type, textList) -> {
+            NbtComponent component = itemStack.get(DataComponentTypes.CUSTOM_DATA);
+
+            if (component != null && component.contains(MOD_ID + "_tooltip")) {
+                BlockStateComponent blockStateComponent = itemStack.get(DataComponentTypes.BLOCK_STATE);
+
+                if (blockStateComponent != null) {
+                    blockStateComponent.properties().forEach((propName, propValue) -> {
+                        Text text = Text.literal(propName + ": " + propValue).formatted(Formatting.GRAY);
+                        textList.add(1, text);
+                    });
+                }
+            }
+        });
     }
 
     private void dumpBlocks(MinecraftClient client) {
