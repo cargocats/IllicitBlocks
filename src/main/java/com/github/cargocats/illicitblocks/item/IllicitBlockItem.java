@@ -9,8 +9,8 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.property.Properties;
 import org.jetbrains.annotations.Nullable;
 
-public class BlockStateBlockItem extends BlockItem {
-    public BlockStateBlockItem(Block block, Settings settings) {
+public class IllicitBlockItem extends BlockItem {
+    public IllicitBlockItem(Block block, Settings settings) {
         super(block, settings);
     }
 
