@@ -9,15 +9,26 @@ import com.google.gson.JsonObject;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.block.AbstractFireBlock;
+import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.BubbleColumnBlock;
+import net.minecraft.block.CocoaBlock;
 import net.minecraft.block.CropBlock;
+import net.minecraft.block.EndGatewayBlock;
+import net.minecraft.block.EndPortalBlock;
 import net.minecraft.block.FlowerPotBlock;
 import net.minecraft.block.FluidBlock;
+import net.minecraft.block.FrostedIceBlock;
 import net.minecraft.block.LeveledCauldronBlock;
 import net.minecraft.block.MapColor;
+import net.minecraft.block.NetherPortalBlock;
+import net.minecraft.block.PistonExtensionBlock;
+import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.block.StemBlock;
+import net.minecraft.block.SweetBerryBushBlock;
 import net.minecraft.block.TallPlantBlock;
+import net.minecraft.block.TripwireBlock;
 import net.minecraft.block.WallBannerBlock;
 import net.minecraft.block.WallHangingSignBlock;
 import net.minecraft.block.WallSignBlock;
@@ -116,9 +127,10 @@ public class IllicitBlocksClient implements ClientModInitializer {
         List<TintSource> tintSources = new ArrayList<>();
 
         switch (id.toString()) {
-            case "minecraft:water" -> tintSources.add(new ConstantTintSource(ColorHelper.getArgb(63, 118, 228)));
-            case "minecraft:melon_stem", "minecraft:pumpkin_stem" -> tintSources.add(new MapColorTintSource(MapColor.get(7).color));
-            case "minecraft:water_cauldron" -> tintSources.add(new ConstantTintSource(ColorHelper.getArgb(63, 118, 228)));
+            case "minecraft:water", "minecraft:water_cauldron" -> tintSources.add(new ConstantTintSource(ColorHelper.getArgb(63, 118, 228)));
+            case "minecraft:melon_stem", "minecraft:pumpkin_stem", "minecraft:attached_pumpkin_stem",
+                 "minecraft:attached_melon_stem" -> tintSources.add(new MapColorTintSource(MapColor.get(7).color));
+            case "minecraft:redstone_wire" -> tintSources.add(new MapColorTintSource(MapColor.get(52).color));
             default -> {}
         }
 
@@ -155,7 +167,7 @@ public class IllicitBlocksClient implements ClientModInitializer {
         jsonRoot.addProperty("gui_light", "front");
 
         switch (block) {
-            case FluidBlock fluidBlock -> {
+            case FluidBlock ignored -> {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
 
                 JsonObject textures = new JsonObject();
@@ -163,7 +175,7 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
                 textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_still");
             }
-            case CropBlock cropBlock -> jsonRoot.addProperty("parent", "block/" + id.getPath() + "_stage0");
+            case CropBlock ignored -> jsonRoot.addProperty("parent", "block/" + id.getPath() + "_stage0");
             case WallSignBlock wallSignBlock -> {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
 
@@ -191,7 +203,7 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
                 textures.addProperty("layer0", id.getNamespace() + ":item/" + woodName + "_hanging_sign");
             }
-            case FlowerPotBlock flowerPotBlock when !id.getNamespace().equals("minecraft") -> {
+            case FlowerPotBlock ignored when !id.getNamespace().equals("minecraft") -> {
                 jsonRoot.addProperty("parent", "minecraft:block/flower_pot_cross");
 
                 JsonObject textures = new JsonObject();
@@ -199,7 +211,7 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
                 textures.addProperty("plant", id.getNamespace() + ":block/" + id.getPath().replace("potted_", ""));
             }
-            case TallPlantBlock tallPlantBlock -> {
+            case TallPlantBlock ignored -> {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
 
                 JsonObject textures = new JsonObject();
@@ -207,7 +219,7 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
                 textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_bottom");
             }
-            case AbstractFireBlock abstractFireBlock -> {
+            case AbstractFireBlock ignored -> {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
 
                 JsonObject textures = new JsonObject();
@@ -215,15 +227,66 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
                 textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_0");
             }
-            case StemBlock stemBlock -> {
+            case StemBlock ignored -> {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
                 JsonObject textures = new JsonObject();
                 jsonRoot.add("textures", textures);
 
                 textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath());
             }
-            case LeveledCauldronBlock leveledCauldronBlock -> {
-                jsonRoot.addProperty("parent", id.getNamespace() + ":block/" + id.getPath() + "_full");
+            case LeveledCauldronBlock ignored -> jsonRoot.addProperty("parent", id.getNamespace() + ":block/" + id.getPath() + "_full");
+            case SweetBerryBushBlock ignored -> jsonRoot.addProperty("parent", "minecraft:block/sweet_berry_bush_stage0");
+            case FrostedIceBlock ignored -> jsonRoot.addProperty("parent", "minecraft:block/frosted_ice_3");
+            case TripwireBlock ignored -> jsonRoot.addProperty("parent", "minecraft:block/tripwire_attached_nsew");
+            case RedstoneWireBlock ignored -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
+                JsonObject textures = new JsonObject();
+                jsonRoot.add("textures", textures);
+
+                textures.addProperty("layer0", "minecraft:block/redstone_dust_dot");
+            }
+            case BubbleColumnBlock ignored -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
+                JsonObject textures = new JsonObject();
+                jsonRoot.add("textures", textures);
+
+                textures.addProperty("layer0", "illicitblocks:item/bubble_column");
+            }
+            case CocoaBlock ignored -> jsonRoot.addProperty("parent", "minecraft:block/cocoa_stage2");
+            case NetherPortalBlock ignored -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
+                JsonObject textures = new JsonObject();
+                jsonRoot.add("textures", textures);
+
+                textures.addProperty("layer0", "minecraft:block/nether_portal");
+            }
+            case AirBlock ignored -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
+                JsonObject textures = new JsonObject();
+                jsonRoot.add("textures", textures);
+
+                textures.addProperty("layer0", "illicitblocks:item/" + id.getPath());
+            }
+            case PistonExtensionBlock ignored -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
+                JsonObject textures = new JsonObject();
+                jsonRoot.add("textures", textures);
+
+                textures.addProperty("layer0", "minecraft:block/piston_top");
+            }
+            case EndPortalBlock ignored -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
+                JsonObject textures = new JsonObject();
+                jsonRoot.add("textures", textures);
+
+                textures.addProperty("layer0", "illicitblocks:item/end_portal");
+            }
+            case EndGatewayBlock ignored -> {
+                jsonRoot.addProperty("parent", "minecraft:item/generated");
+                JsonObject textures = new JsonObject();
+                jsonRoot.add("textures", textures);
+
+                textures.addProperty("layer0", "illicitblocks:item/end_gateway");
             }
             default -> {
                 Utils.debugLog("Default back to block for {}, class: {}", id, block.getClass());
