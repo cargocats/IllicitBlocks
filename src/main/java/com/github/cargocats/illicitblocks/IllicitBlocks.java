@@ -2,6 +2,7 @@ package com.github.cargocats.illicitblocks;
 
 import com.github.cargocats.illicitblocks.item.BlockStateBlockItem;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.block.Block;
@@ -58,20 +59,21 @@ public class IllicitBlocks implements ModInitializer {
         ArrayList<BlockStateBlockItem> collected = new ArrayList<>();
         AtomicBoolean hasModdedContent = new AtomicBoolean(false);
 
-        Registries.BLOCK.forEach(block -> {
+        RegistryEntryAddedCallback.allEntries(Registries.BLOCK, refBlock -> {
+            Block block = refBlock.value();
             Identifier id = Registries.BLOCK.getId(block);
+
             if ("minecraft".equals(id.getNamespace())) {
                 BlockStateBlockItem item = tryRegisterBlock(id);
                 if (item != null) collected.add(item);
             } else {
+                if (moddedBlocks.contains(id)) {
+                    BlockStateBlockItem item = tryRegisterBlock(id);
+                    if (item != null) collected.add(item);
+                }
                 hasModdedContent.set(true);
             }
         });
-
-        for (Identifier id : moddedBlocks) {
-            BlockStateBlockItem item = tryRegisterBlock(id);
-            if (item != null) collected.add(item);
-        }
 
         if (hasModdedContent.get() && moddedBlocks.isEmpty()) {
             ItemStack placeholder = new ItemStack(Items.BARRIER);
