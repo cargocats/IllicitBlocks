@@ -14,6 +14,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.CropBlock;
 import net.minecraft.block.FlowerPotBlock;
 import net.minecraft.block.FluidBlock;
+import net.minecraft.block.LeveledCauldronBlock;
 import net.minecraft.block.MapColor;
 import net.minecraft.block.StemBlock;
 import net.minecraft.block.TallPlantBlock;
@@ -117,6 +118,7 @@ public class IllicitBlocksClient implements ClientModInitializer {
         switch (id.toString()) {
             case "minecraft:water" -> tintSources.add(new ConstantTintSource(ColorHelper.getArgb(63, 118, 228)));
             case "minecraft:melon_stem", "minecraft:pumpkin_stem" -> tintSources.add(new MapColorTintSource(MapColor.get(7).color));
+            case "minecraft:water_cauldron" -> tintSources.add(new ConstantTintSource(ColorHelper.getArgb(63, 118, 228)));
             default -> {}
         }
 
@@ -157,14 +159,17 @@ public class IllicitBlocksClient implements ClientModInitializer {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
 
                 JsonObject textures = new JsonObject();
-                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_still");
                 jsonRoot.add("textures", textures);
+
+                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_still");
             }
             case CropBlock cropBlock -> jsonRoot.addProperty("parent", "block/" + id.getPath() + "_stage0");
             case WallSignBlock wallSignBlock -> {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
 
                 JsonObject textures = new JsonObject();
+                jsonRoot.add("textures", textures);
+
                 String woodName = wallSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
                 if (id.getNamespace().equals("terrestria")) {
                     woodName = extractWoodType(id.toString());
@@ -172,44 +177,53 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
                 String itemTextureString = id.getNamespace() + ":item/" + woodName + "_sign";
                 textures.addProperty("layer0", itemTextureString);
-                jsonRoot.add("textures", textures);
             }
             case WallHangingSignBlock wallHangingSignBlock -> {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
 
                 JsonObject textures = new JsonObject();
+                jsonRoot.add("textures", textures);
+
                 String woodName = wallHangingSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
                 if (id.getNamespace().equals("terrestria")) {
                     woodName = extractWoodType(id.toString());
                 }
 
                 textures.addProperty("layer0", id.getNamespace() + ":item/" + woodName + "_hanging_sign");
-                jsonRoot.add("textures", textures);
             }
             case FlowerPotBlock flowerPotBlock when !id.getNamespace().equals("minecraft") -> {
                 jsonRoot.addProperty("parent", "minecraft:block/flower_pot_cross");
 
                 JsonObject textures = new JsonObject();
-                textures.addProperty("plant", id.getNamespace() + ":block/" + id.getPath().replace("potted_", ""));
                 jsonRoot.add("textures", textures);
+
+                textures.addProperty("plant", id.getNamespace() + ":block/" + id.getPath().replace("potted_", ""));
             }
             case TallPlantBlock tallPlantBlock -> {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
+
                 JsonObject textures = new JsonObject();
-                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_bottom");
                 jsonRoot.add("textures", textures);
+
+                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_bottom");
             }
             case AbstractFireBlock abstractFireBlock -> {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
+
                 JsonObject textures = new JsonObject();
-                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_0");
                 jsonRoot.add("textures", textures);
+
+                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_0");
             }
             case StemBlock stemBlock -> {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
                 JsonObject textures = new JsonObject();
-                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath());
                 jsonRoot.add("textures", textures);
+
+                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath());
+            }
+            case LeveledCauldronBlock leveledCauldronBlock -> {
+                jsonRoot.addProperty("parent", id.getNamespace() + ":block/" + id.getPath() + "_full");
             }
             default -> {
                 Utils.debugLog("Default back to block for {}, class: {}", id, block.getClass());
