@@ -17,40 +17,15 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import java.util.ArrayList;
-import java.util.List;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.cargocats.illicitblocks.IllicitBlocks.*;
 
 public class IllicitBlocksClient implements ClientModInitializer {
-    // This is necessary because these mods don't use their own WoodTypes
-    private static final List<String> annoyingMods = List.of("terrestria", "cinderscapes");
-
     @Override
     public void onInitializeClient() {
         ModelLoadingPlugin.register(new IllicitModelPlugin());
-
-        /*
-        AdditionalItemAssetRegistrationCallback.EVENT.register(context -> {
-            moddedBlocks.forEach(id -> addItemAssetForId(context, id));
-
-            createdBlockItems.forEach(id -> {
-                if (id.getNamespace().equals("minecraft")) {
-                    addItemAssetForId(context, id);
-                }
-            });
-        });
-
-        AdditionalModelRegistrationCallback.EVENT.register(context -> {
-            moddedBlocks.forEach(id -> addModelForId(context, id));
-
-            createdBlockItems.forEach(id -> {
-                if (id.getNamespace().equals("minecraft")) {
-                    addModelForId(context, id);
-                }
-            });
-        });*/
-
         ClientLifecycleEvents.CLIENT_STARTED.register(this::dumpBlocks);
 
         // TODO: Cache results?
