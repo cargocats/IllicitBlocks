@@ -69,7 +69,8 @@ public class IllicitBlocks implements ModInitializer {
 
     private ArrayList<IllicitBlockItem> registerBlockItems() {
         ArrayList<IllicitBlockItem> collected = new ArrayList<>();
-        AtomicBoolean hasModdedContent = new AtomicBoolean(false);
+        AtomicBoolean hasModdedBlocks = new AtomicBoolean(false);
+        AtomicBoolean newBlock = new AtomicBoolean(false);
 
         RegistryEntryAddedCallback.allEntries(Registries.BLOCK, refBlock -> {
             Block block = refBlock.value();
@@ -82,12 +83,14 @@ public class IllicitBlocks implements ModInitializer {
                 if (moddedBlocks.contains(id)) {
                     IllicitBlockItem item = tryRegisterBlock(id);
                     if (item != null) collected.add(item);
+                } else {
+                    newBlock.set(true);
                 }
-                hasModdedContent.set(true);
+                hasModdedBlocks.set(true);
             }
         });
 
-        if (hasModdedContent.get() && moddedBlocks.isEmpty()) {
+        if (hasModdedBlocks.get() && moddedBlocks.isEmpty() || newBlock.get()) {
             ItemStack placeholder = new ItemStack(Items.BARRIER);
             placeholder.set(DataComponentTypes.ITEM_NAME, Text.translatable("illicitblocks.placeholder_description"));
             ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY)
