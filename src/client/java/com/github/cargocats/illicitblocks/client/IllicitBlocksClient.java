@@ -62,6 +62,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.github.cargocats.illicitblocks.IllicitBlocks.*;
 
 public class IllicitBlocksClient implements ClientModInitializer {
+    // This is necessary because these mods don't use their own WoodTypes
+    private static final List<String> annoyingMods = List.of("terrestria", "cinderscapes");
+
     @Override
     public void onInitializeClient() {
         AdditionalItemAssetRegistrationCallback.EVENT.register(context -> {
@@ -204,7 +207,7 @@ public class IllicitBlocksClient implements ClientModInitializer {
                 jsonRoot.add("textures", textures);
 
                 String woodName = wallSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
-                if (id.getNamespace().equals("terrestria")) {
+                if (annoyingMods.contains(id.getNamespace())) {
                     woodName = extractWoodType(id.toString());
                 }
 
@@ -218,7 +221,7 @@ public class IllicitBlocksClient implements ClientModInitializer {
                 jsonRoot.add("textures", textures);
 
                 String woodName = wallHangingSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
-                if (id.getNamespace().equals("terrestria")) {
+                if (annoyingMods.contains(id.getNamespace())) {
                     woodName = extractWoodType(id.toString());
                 }
 
