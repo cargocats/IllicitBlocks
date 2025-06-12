@@ -230,10 +230,16 @@ public class IllicitBlocksClient implements ClientModInitializer {
             case FlowerPotBlock ignored when !id.getNamespace().equals("minecraft") -> {
                 jsonRoot.addProperty("parent", "minecraft:block/flower_pot_cross");
 
+                String texture = id.getPath().replace("potted_", "");
+
                 JsonObject textures = new JsonObject();
                 jsonRoot.add("textures", textures);
 
-                textures.addProperty("plant", id.getNamespace() + ":block/" + id.getPath().replace("potted_", ""));
+                if (!context.hasModel(Identifier.of(id.getNamespace(), "block/" + texture))) {
+                    textures.addProperty("plant", id.getNamespace() + ":block/" + texture + "_top");
+                } else {
+                    textures.addProperty("plant", id.getNamespace() + ":block/" + texture);
+                }
             }
             case TallPlantBlock ignored -> {
                 jsonRoot.addProperty("parent", "minecraft:item/generated");
