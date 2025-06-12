@@ -18,7 +18,7 @@ public class IllicitBlockItem extends BlockItem {
     protected @Nullable BlockState getPlacementState(ItemPlacementContext context) {
         BlockState blockState = super.getPlacementState(context);
         if (blockState != null && blockState.contains(Properties.FACING)) {
-            blockState = blockState.with(Properties.FACING, context.getHorizontalPlayerFacing().getOpposite());
+            blockState = blockState.with(Properties.FACING, context.getPlayerLookDirection().getOpposite());
         }
 
         return blockState;
