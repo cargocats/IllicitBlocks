@@ -19,7 +19,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -52,7 +51,7 @@ public class IllicitBlocks implements ModInitializer {
         ConfigManager.loadConfig();
         DEBUG_LOGGING = ConfigManager.config.debug;
         moddedBlocks = ConfigManager.config.modded_block_list.stream()
-                .map(Identifier::of)
+                .map(Identifier::new)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         Registry.register(Registries.ITEM_GROUP, ILLICIT_BLOCKS_ITEM_GROUP_KEY, ILLICIT_BLOCKS_ITEM_GROUP);
@@ -72,8 +71,22 @@ public class IllicitBlocks implements ModInitializer {
         AtomicBoolean hasModdedBlocks = new AtomicBoolean(false);
         AtomicBoolean newBlock = new AtomicBoolean(false);
 
-        RegistryEntryAddedCallback.allEntries(Registries.BLOCK, refBlock -> {
-            Block block = refBlock.value();
+        RegistryEntryAddedCallback.event(Registries.BLOCK).register((ignored, id, block) -> {
+            if ("minecraft".equals(id.getNamespace())) {
+                IllicitBlockItem item = tryRegisterBlock(id);
+                if (item != null) collected.add(item);
+            } else {
+                if (moddedBlocks.contains(id)) {
+                    IllicitBlockItem item = tryRegisterBlock(id);
+                    if (item != null) collected.add(item);
+                } else {
+                    newBlock.set(true);
+                }
+                hasModdedBlocks.set(true);
+            }
+        });
+
+        Registries.BLOCK.forEach(block -> {
             Identifier id = Registries.BLOCK.getId(block);
 
             if ("minecraft".equals(id.getNamespace())) {
@@ -92,7 +105,7 @@ public class IllicitBlocks implements ModInitializer {
 
         if (hasModdedBlocks.get() && moddedBlocks.isEmpty() || newBlock.get()) {
             ItemStack placeholder = new ItemStack(Items.BARRIER);
-            placeholder.set(DataComponentTypes.ITEM_NAME, Text.translatable("illicitblocks.placeholder_description"));
+            placeholder.set(DataComponentTypes.CUSTOM_NAME, Text.translatable("illicitblocks.placeholder_description"));
             ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY)
                     .register(group -> group.add(placeholder));
         }
@@ -107,9 +120,7 @@ public class IllicitBlocks implements ModInitializer {
         }
 
         Block block = Registries.BLOCK.get(id);
-        IllicitBlockItem blockStateBlockItem = new IllicitBlockItem(block, new Item.Settings()
-                .registryKey(RegistryKey.of(RegistryKeys.ITEM, id))
-                .useBlockPrefixedTranslationKey());
+        IllicitBlockItem blockStateBlockItem = new IllicitBlockItem(block, new Item.Settings());
 
         Registry.register(Registries.ITEM, id, blockStateBlockItem);
         createdBlockItems.add(id);

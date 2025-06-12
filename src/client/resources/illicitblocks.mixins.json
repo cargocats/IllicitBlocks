@@ -4,9 +4,6 @@
   "package": "com.github.cargocats.illicitblocks.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "BakedModelManagerMixin",
-    "ItemAssetsLoaderMixin",
-    "ItemAssetsLoaderMixin$DefinitionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

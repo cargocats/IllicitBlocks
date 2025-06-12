@@ -6,7 +6,9 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.registry.Registries;
 import net.minecraft.state.property.Properties;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 public class IllicitBlockItem extends BlockItem {
@@ -31,5 +33,10 @@ public class IllicitBlockItem extends BlockItem {
             return context.getWorld().canPlace(state, context.getBlockPos(), ShapeContext.of(playerEntity));
         }
         return true;
+    }
+
+    @Override
+    public String getTranslationKey() {
+        return Util.createTranslationKey("block", Registries.BLOCK.getId(this.getBlock()));
     }
 }
