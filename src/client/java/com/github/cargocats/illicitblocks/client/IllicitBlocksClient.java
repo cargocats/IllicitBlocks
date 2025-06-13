@@ -28,9 +28,6 @@ public class IllicitBlocksClient implements ClientModInitializer {
     public void onInitializeClient() {
         ModelLoadingPlugin.register(new IllicitModelPlugin());
 
-        LOG.info("THE TO BE TINTED {}", toBeTinted);
-        LOG.info("THE TO BE TINTED SIZE {}", toBeTinted.size());
-
         ColorProviderRegistry.ITEM.register((itemStack, tintIndex) -> {
             Identifier id = Registries.ITEM.getId(itemStack.getItem());
             return colorMap.getOrDefault(id, -1);
