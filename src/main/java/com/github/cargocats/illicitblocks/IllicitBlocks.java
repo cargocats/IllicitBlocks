@@ -6,10 +6,8 @@ import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BlockStateComponent;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
@@ -30,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -62,12 +59,12 @@ public class IllicitBlocks implements ModInitializer {
 
         Registry.register(Registries.ITEM_GROUP, ILLICIT_BLOCKS_ITEM_GROUP_KEY, ILLICIT_BLOCKS_ITEM_GROUP);
 
-        colorMap.put(new Identifier("minecraft", "water"), ColorHelper.Argb.getArgb(63, 118, 228));
-        colorMap.put(new Identifier("minecraft", "redstone_wire"), ColorHelper.Argb.getArgb(189, 48, 49));
-        colorMap.put(new Identifier("minecraft", "attached_melon_stem"), ColorHelper.Argb.getArgb(0, 124, 0));
-        colorMap.put(new Identifier("minecraft", "attached_pumpkin_stem"), ColorHelper.Argb.getArgb(0, 124, 0));
-        colorMap.put(new Identifier("minecraft", "melon_stem"), ColorHelper.Argb.getArgb(0, 124, 0));
-        colorMap.put(new Identifier("minecraft", "pumpkin_stem"), ColorHelper.Argb.getArgb(0, 124, 0));
+        colorMap.put(new Identifier("minecraft", "water"), ColorHelper.Argb.getArgb(255, 63, 118, 228));
+        colorMap.put(new Identifier("minecraft", "redstone_wire"), ColorHelper.Argb.getArgb(255, 189, 48, 49));
+        colorMap.put(new Identifier("minecraft", "attached_melon_stem"), ColorHelper.Argb.getArgb(255, 0, 124, 0));
+        colorMap.put(new Identifier("minecraft", "attached_pumpkin_stem"), ColorHelper.Argb.getArgb(255, 0, 124, 0));
+        colorMap.put(new Identifier("minecraft", "melon_stem"), ColorHelper.Argb.getArgb(255, 0, 124, 0));
+        colorMap.put(new Identifier("minecraft", "pumpkin_stem"), ColorHelper.Argb.getArgb(255, 0, 124, 0));
 
         ArrayList<IllicitBlockItem> blockItems = registerBlockItems();
         ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY)
@@ -118,7 +115,7 @@ public class IllicitBlocks implements ModInitializer {
 
         if (hasModdedBlocks.get() && moddedBlocks.isEmpty() || newBlock.get()) {
             ItemStack placeholder = new ItemStack(Items.BARRIER);
-            placeholder.set(DataComponentTypes.CUSTOM_NAME, Text.translatable("illicitblocks.placeholder_description"));
+            placeholder.setCustomName(Text.translatable("illicitblocks.placeholder_description"));
             ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY)
                     .register(group -> group.add(placeholder));
         }
@@ -145,30 +142,39 @@ public class IllicitBlocks implements ModInitializer {
         return blockStateBlockItem;
     }
 
+    private static <T extends Comparable<T>> String getPropertyValue(Property<T> prop, BlockState state) {
+        return prop.name(state.get(prop));
+    }
+
     private List<ItemStack> generateItemStacksFromBlockItem(BlockItem blockItem) {
         return blockItem.getBlock().getStateManager().getStates().stream()
-                .map(state -> {
-                    BlockStateComponent comp = new BlockStateComponent(BlockStateComponent.DEFAULT.properties());
+                .filter(state -> {
                     for (Property<?> prop : state.getProperties()) {
                         if (!ignoredProperties.contains(prop.getName())) {
-                            comp = comp.with(prop, state);
+                            return true;
                         }
                     }
-                    return Map.entry(blockItem, comp);
+                    return false;
                 })
-                .filter(entry -> !entry.getValue().properties().isEmpty())
-                .distinct()
-                .map(entry -> {
-                    ItemStack stack = new ItemStack(entry.getKey());
-                    stack.set(DataComponentTypes.BLOCK_STATE, entry.getValue());
+                .map(state -> {
+                    ItemStack stack = new ItemStack(blockItem);
+                    NbtCompound tag = stack.getOrCreateNbt();
 
-                    NbtCompound nbtCompound = new NbtCompound();
-                    nbtCompound.putBoolean(MOD_ID + "_tooltip", true);
+                    // Encode block state
+                    NbtCompound stateTag = new NbtCompound();
+                    for (Property<?> prop : state.getProperties()) {
+                        if (!ignoredProperties.contains(prop.getName())) {
+                            stateTag.putString(prop.getName(), getPropertyValue(prop, state));
+                        }
+                    }
 
-                    stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbtCompound));
+                    tag.put("BlockState", stateTag);
+                    tag.putBoolean(MOD_ID + "_tooltip", true);
+
                     return stack;
                 }).toList();
     }
+
 
     public static boolean shouldHandleBlock(Identifier blockId) {
         if (ConfigManager.config.included_identifiers.contains(blockId.toString())) {
