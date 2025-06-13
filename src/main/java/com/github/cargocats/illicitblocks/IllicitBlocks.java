@@ -12,6 +12,7 @@ import net.minecraft.component.type.BlockStateComponent;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -22,10 +23,12 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +40,9 @@ public class IllicitBlocks implements ModInitializer {
     public static final Logger LOG = LoggerFactory.getLogger(MOD_ID);
     public static ArrayList<Identifier> moddedBlocks = new ArrayList<>();
     public static ArrayList<Identifier> createdBlockItems = new ArrayList<>();
+    public static ArrayList<ItemConvertible> toBeTinted = new ArrayList<>();
+    public static final HashMap<Identifier, Integer> colorMap = new HashMap<>();
+
     public static final Set<String> ignoredProperties = Set.of("facing", "horizontal_facing", "vertical_direction", "axis", "rotation", "east", "west", "south", "north");
     public static boolean DEBUG_LOGGING = true;
 
@@ -55,6 +61,13 @@ public class IllicitBlocks implements ModInitializer {
                 .collect(Collectors.toCollection(ArrayList::new));
 
         Registry.register(Registries.ITEM_GROUP, ILLICIT_BLOCKS_ITEM_GROUP_KEY, ILLICIT_BLOCKS_ITEM_GROUP);
+
+        colorMap.put(new Identifier("minecraft", "water"), ColorHelper.Argb.getArgb(63, 118, 228));
+        colorMap.put(new Identifier("minecraft", "redstone_wire"), ColorHelper.Argb.getArgb(189, 48, 49));
+        colorMap.put(new Identifier("minecraft", "attached_melon_stem"), ColorHelper.Argb.getArgb(0, 124, 0));
+        colorMap.put(new Identifier("minecraft", "attached_pumpkin_stem"), ColorHelper.Argb.getArgb(0, 124, 0));
+        colorMap.put(new Identifier("minecraft", "melon_stem"), ColorHelper.Argb.getArgb(0, 124, 0));
+        colorMap.put(new Identifier("minecraft", "pumpkin_stem"), ColorHelper.Argb.getArgb(0, 124, 0));
 
         ArrayList<IllicitBlockItem> blockItems = registerBlockItems();
         ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY)
@@ -121,9 +134,12 @@ public class IllicitBlocks implements ModInitializer {
 
         Block block = Registries.BLOCK.get(id);
         IllicitBlockItem blockStateBlockItem = new IllicitBlockItem(block, new Item.Settings());
-
         Registry.register(Registries.ITEM, id, blockStateBlockItem);
         createdBlockItems.add(id);
+
+        if (colorMap.containsKey(id)) {
+            toBeTinted.add(blockStateBlockItem);
+        }
 
         Utils.debugLog("Registered block item: {}", id);
         return blockStateBlockItem;

@@ -24,8 +24,10 @@ import net.minecraft.block.StemBlock;
 import net.minecraft.block.SweetBerryBushBlock;
 import net.minecraft.block.TallPlantBlock;
 import net.minecraft.block.TripwireBlock;
+import net.minecraft.block.WallBannerBlock;
 import net.minecraft.block.WallHangingSignBlock;
 import net.minecraft.block.WallSignBlock;
+import net.minecraft.block.WallSkullBlock;
 import net.minecraft.client.render.model.json.JsonUnbakedModel;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
@@ -37,8 +39,8 @@ import static com.github.cargocats.illicitblocks.IllicitBlocks.createdBlockItems
 import static com.github.cargocats.illicitblocks.client.IllicitBlocksClient.extractWoodType;
 
 public class IllicitModelPlugin implements ModelLoadingPlugin {
-    private static final HashMap<Identifier, Identifier> blockIdToItemId = new HashMap<>();
-    private static final HashMap<Identifier, Identifier> itemIdToBlockId = new HashMap<>();
+    public static final HashMap<Identifier, Identifier> blockIdToItemId = new HashMap<>();
+    public static final HashMap<Identifier, Identifier> itemIdToBlockId = new HashMap<>();
     // This is necessary because these mods don't use their own WoodTypes
     private static final List<String> annoyingMods = List.of("terrestria", "cinderscapes");
 
@@ -55,17 +57,18 @@ public class IllicitModelPlugin implements ModelLoadingPlugin {
 
         pluginContext.resolveModel().register(context -> {
             // can be either :block/ or :item/
-
             Identifier id = context.id();
 
             if (blockIdToItemId.containsValue(id)) {
                 Identifier blockId = itemIdToBlockId.get(id);
+
                 return JsonUnbakedModel.deserialize(getModelForId(blockId, context));
             }
             return null;
         });
 
-        // TODO: somehow do tints, and special models
+
+        // TODO: somehow do tints
 
         IllicitBlocks.LOG.info("Loaded Illicit Blocks model plugin");
     }
@@ -202,6 +205,8 @@ public class IllicitModelPlugin implements ModelLoadingPlugin {
 
                 textures.addProperty("layer0", "illicitblocks:item/end_gateway");
             }
+            case WallBannerBlock ignored -> jsonRoot.addProperty("parent", "minecraft:item/template_banner");
+            case WallSkullBlock ignored -> jsonRoot.addProperty("parent", "minecraft:item/template_skull");
             default -> {
                 Utils.debugLog("Default back to block for {}, class: {}", id, block.getClass());
                 jsonRoot.addProperty("parent", "block/" + id.getPath());

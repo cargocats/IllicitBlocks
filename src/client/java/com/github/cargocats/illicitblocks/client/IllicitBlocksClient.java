@@ -6,18 +6,19 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.toast.SystemToast;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.BlockStateComponent;
 import net.minecraft.component.type.NbtComponent;
+import net.minecraft.item.ItemConvertible;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import java.util.ArrayList;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.cargocats.illicitblocks.IllicitBlocks.*;
@@ -26,6 +27,15 @@ public class IllicitBlocksClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ModelLoadingPlugin.register(new IllicitModelPlugin());
+
+        LOG.info("THE TO BE TINTED {}", toBeTinted);
+        LOG.info("THE TO BE TINTED SIZE {}", toBeTinted.size());
+
+        ColorProviderRegistry.ITEM.register((itemStack, tintIndex) -> {
+            Identifier id = Registries.ITEM.getId(itemStack.getItem());
+            return colorMap.getOrDefault(id, -1);
+        }, toBeTinted.toArray(new ItemConvertible[]{}));
+
         ClientLifecycleEvents.CLIENT_STARTED.register(this::dumpBlocks);
 
         // TODO: Cache results?
