@@ -1,18 +1,14 @@
 package com.github.cargocats.illicitblocks.client;
 
-import com.github.cargocats.illicitblocks.ConfigManager;
-import com.github.cargocats.illicitblocks.IllicitBlocks;
 import com.github.cargocats.illicitblocks.Utils;
 import com.github.cargocats.illicitblocks.client.api.AdditionalItemAssetRegistrationCallback;
 import com.github.cargocats.illicitblocks.client.api.AdditionalModelRegistrationCallback;
 import com.google.gson.JsonObject;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.BubbleColumnBlock;
 import net.minecraft.block.CocoaBlock;
 import net.minecraft.block.CropBlock;
@@ -34,7 +30,6 @@ import net.minecraft.block.WallBannerBlock;
 import net.minecraft.block.WallHangingSignBlock;
 import net.minecraft.block.WallSignBlock;
 import net.minecraft.block.WallSkullBlock;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.ItemAsset;
 import net.minecraft.client.render.item.model.BasicItemModel;
 import net.minecraft.client.render.item.model.SpecialItemModel;
@@ -44,7 +39,6 @@ import net.minecraft.client.render.item.tint.ConstantTintSource;
 import net.minecraft.client.render.item.tint.MapColorTintSource;
 import net.minecraft.client.render.item.tint.TintSource;
 import net.minecraft.client.render.model.json.JsonUnbakedModel;
-import net.minecraft.client.toast.SystemToast;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.BlockStateComponent;
 import net.minecraft.component.type.NbtComponent;
@@ -57,9 +51,9 @@ import net.minecraft.util.math.ColorHelper;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.github.cargocats.illicitblocks.IllicitBlocks.*;
+import static com.github.cargocats.illicitblocks.IllicitBlocks.MOD_ID;
+import static com.github.cargocats.illicitblocks.IllicitBlocks.createdBlockItems;
 
 public class IllicitBlocksClient implements ClientModInitializer {
     // This is necessary because these mods don't use their own WoodTypes
@@ -67,27 +61,8 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        AdditionalItemAssetRegistrationCallback.EVENT.register(context -> {
-            moddedBlocks.forEach(id -> addItemAssetForId(context, id));
-
-            createdBlockItems.forEach(id -> {
-                if (id.getNamespace().equals("minecraft")) {
-                    addItemAssetForId(context, id);
-                }
-            });
-        });
-
-        AdditionalModelRegistrationCallback.EVENT.register(context -> {
-            moddedBlocks.forEach(id -> addModelForId(context, id));
-
-            createdBlockItems.forEach(id -> {
-                if (id.getNamespace().equals("minecraft")) {
-                    addModelForId(context, id);
-                }
-            });
-        });
-
-        ClientLifecycleEvents.CLIENT_STARTED.register(this::dumpBlocks);
+        AdditionalItemAssetRegistrationCallback.EVENT.register(context -> createdBlockItems.forEach(id -> addItemAssetForId(context, id)));
+        AdditionalModelRegistrationCallback.EVENT.register(context -> createdBlockItems.forEach(id -> addModelForId(context, id)));
 
         // TODO: Cache results?
         ItemTooltipCallback.EVENT.register((itemStack, context, type, textList) -> {
@@ -104,44 +79,6 @@ public class IllicitBlocksClient implements ClientModInitializer {
                 }
             }
         });
-    }
-
-    private void dumpBlocks(MinecraftClient client) {
-        if (!ConfigManager.config.create_list_after_freeze) return;
-
-        ArrayList<String> moddedBlockList = ConfigManager.config.modded_block_list;
-        AtomicBoolean newBlock = new AtomicBoolean(false);
-
-        Registries.BLOCK.forEach(block -> {
-            Identifier blockId = Registries.BLOCK.getId(block);
-
-            if (blockId.getNamespace().equals("minecraft")) return;
-
-            if (block != Blocks.AIR && !Registries.ITEM.containsId(blockId) && shouldHandleBlock(blockId)) {
-                if (!moddedBlockList.contains(blockId.toString())) {
-                    newBlock.set(true);
-                }
-                moddedBlockList.add(blockId.toString());
-            }
-        });
-
-        if (!newBlock.get()) {
-            IllicitBlocks.LOG.info("No new blocks found");
-            return;
-        }
-
-        ConfigManager.config.modded_block_list = moddedBlockList;
-        ConfigManager.saveConfig();
-
-        client.getToastManager().add(
-                new SystemToast(
-                        new SystemToast.Type(10000),
-                        Text.translatable("illicitblocks.mod_name"),
-                        Text.translatable("illicitblocks.toast.restart")
-                )
-        );
-
-        IllicitBlocks.LOG.info("Dumped modded blocks to block_list for config, restart minecraft");
     }
 
     public static void addItemAssetForId(AdditionalItemAssetRegistrationCallback.Context context, Identifier id) {

@@ -4,7 +4,6 @@ import com.github.cargocats.illicitblocks.item.IllicitBlockItem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.component.DataComponentTypes;
@@ -30,13 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 public class IllicitBlocks implements ModInitializer {
     public static final String MOD_ID = "illicitblocks";
     public static final Logger LOG = LoggerFactory.getLogger(MOD_ID);
-    public static ArrayList<Identifier> moddedBlocks = new ArrayList<>();
     public static ArrayList<Identifier> createdBlockItems = new ArrayList<>();
     public static final Set<String> ignoredProperties = Set.of("facing", "horizontal_facing", "vertical_direction", "axis", "rotation", "east", "west", "south", "north");
     public static boolean DEBUG_LOGGING = true;
@@ -51,56 +47,28 @@ public class IllicitBlocks implements ModInitializer {
     public void onInitialize() {
         ConfigManager.loadConfig();
         DEBUG_LOGGING = ConfigManager.config.debug;
-        moddedBlocks = ConfigManager.config.modded_block_list.stream()
-                .map(Identifier::of)
-                .collect(Collectors.toCollection(ArrayList::new));
 
         Registry.register(Registries.ITEM_GROUP, ILLICIT_BLOCKS_ITEM_GROUP_KEY, ILLICIT_BLOCKS_ITEM_GROUP);
-
-        ArrayList<IllicitBlockItem> blockItems = registerBlockItems();
-        ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY)
-                .register(group -> blockItems.forEach(blockItem -> {
-                    group.add(blockItem);
-                    generateItemStacksFromBlockItem(blockItem).forEach(group::add);
-                }));
-
         LOG.info("Loaded Illicit Blocks");
     }
 
-    private ArrayList<IllicitBlockItem> registerBlockItems() {
+    public static ArrayList<IllicitBlockItem> registerBlockItems() {
         ArrayList<IllicitBlockItem> collected = new ArrayList<>();
-        AtomicBoolean hasModdedBlocks = new AtomicBoolean(false);
-        AtomicBoolean newBlock = new AtomicBoolean(false);
 
         RegistryEntryAddedCallback.allEntries(Registries.BLOCK, refBlock -> {
             Block block = refBlock.value();
             Identifier id = Registries.BLOCK.getId(block);
 
-            if ("minecraft".equals(id.getNamespace())) {
-                IllicitBlockItem item = tryRegisterBlock(id);
-                if (item != null) collected.add(item);
-            } else {
-                if (moddedBlocks.contains(id)) {
-                    IllicitBlockItem item = tryRegisterBlock(id);
-                    if (item != null) collected.add(item);
-                } else {
-                    newBlock.set(true);
-                }
-                hasModdedBlocks.set(true);
+            IllicitBlockItem item = tryRegisterBlock(id);
+            if (item != null) {
+                collected.add(item);
             }
         });
-
-        if (hasModdedBlocks.get() && moddedBlocks.isEmpty() || newBlock.get()) {
-            ItemStack placeholder = new ItemStack(Items.BARRIER);
-            placeholder.set(DataComponentTypes.ITEM_NAME, Text.translatable("illicitblocks.placeholder_description"));
-            ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY)
-                    .register(group -> group.add(placeholder));
-        }
 
         return collected;
     }
 
-    private IllicitBlockItem tryRegisterBlock(Identifier id) {
+    private static IllicitBlockItem tryRegisterBlock(Identifier id) {
         if (!shouldHandleBlock(id)) {
             Utils.debugLog("Do not handle block {}", id);
             return null;
@@ -112,13 +80,12 @@ public class IllicitBlocks implements ModInitializer {
                 .useBlockPrefixedTranslationKey());
 
         Registry.register(Registries.ITEM, id, blockStateBlockItem);
-        createdBlockItems.add(id);
 
         Utils.debugLog("Registered block item: {}", id);
         return blockStateBlockItem;
     }
 
-    private List<ItemStack> generateItemStacksFromBlockItem(BlockItem blockItem) {
+    public static List<ItemStack> generateItemStacksFromBlockItem(BlockItem blockItem) {
         return blockItem.getBlock().getStateManager().getStates().stream()
                 .map(state -> {
                     BlockStateComponent comp = new BlockStateComponent(BlockStateComponent.DEFAULT.properties());

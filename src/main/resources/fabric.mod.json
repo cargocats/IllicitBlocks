@@ -18,6 +18,7 @@
     ]
   },
   "mixins": [
+    "illicitblocks-client.mixins.json",
     "illicitblocks.mixins.json"
   ],
   "depends": {
