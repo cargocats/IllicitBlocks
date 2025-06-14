@@ -21,7 +21,7 @@ public class ConfigManager {
         if (CONFIG_FILE.exists()) {
             try (FileReader fileReader = new FileReader(CONFIG_FILE)) {
                 config = GSON.fromJson(fileReader, Config.class);
-                IllicitBlocks.LOG.info("Successfully config file");
+                IllicitBlocks.LOG.info("Successfully read config file");
             } catch (IOException ioExceptionError) {
                 IllicitBlocks.LOG.warn("Failed to read config file");
             }
@@ -33,6 +33,7 @@ public class ConfigManager {
 
     public static void saveConfig() {
         try {
+            //noinspection ResultOfMethodCallIgnored
             CONFIG_FILE.getParentFile().mkdirs();
 
             try (FileWriter fileWriter = new FileWriter(CONFIG_FILE)) {
