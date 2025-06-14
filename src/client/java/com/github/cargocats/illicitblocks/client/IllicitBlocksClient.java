@@ -4,10 +4,8 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BlockStateComponent;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemConvertible;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -28,16 +26,18 @@ public class IllicitBlocksClient implements ClientModInitializer {
 
         // TODO: Cache results?
         ItemTooltipCallback.EVENT.register((itemStack, context, textList) -> {
-            NbtComponent component = itemStack.get(DataComponentTypes.CUSTOM_DATA);
+            NbtCompound tag = itemStack.getNbt();
 
-            if (component != null && component.contains(MOD_ID + "_tooltip")) {
-                BlockStateComponent blockStateComponent = itemStack.get(DataComponentTypes.BLOCK_STATE);
+            if (tag != null && tag.contains(MOD_ID + "_tooltip")) {
+                NbtCompound stateTag = tag.getCompound("BlockState");
 
-                if (blockStateComponent != null) {
-                    blockStateComponent.properties().forEach((propName, propValue) -> {
-                        Text text = Text.literal(propName + ": " + propValue).formatted(Formatting.GRAY);
+                if (stateTag != null) {
+                    for (String key: stateTag.getKeys()) {
+                        String value = stateTag.getString(key);
+                        Text text = Text.literal(key + ": " + value).formatted(Formatting.GRAY);
+
                         textList.add(1, text);
-                    });
+                    }
                 }
             }
         });
