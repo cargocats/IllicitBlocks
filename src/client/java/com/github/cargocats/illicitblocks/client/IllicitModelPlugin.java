@@ -67,9 +67,6 @@ public class IllicitModelPlugin implements ModelLoadingPlugin {
             return null;
         });
 
-
-        // TODO: somehow do tints
-
         IllicitBlocks.LOG.info("Loaded Illicit Blocks model plugin");
     }
 
@@ -79,138 +76,138 @@ public class IllicitModelPlugin implements ModelLoadingPlugin {
         JsonObject jsonRoot = new JsonObject();
         jsonRoot.addProperty("gui_light", "front");
 
-        switch (block) {
-            case FluidBlock ignored -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
+        if (block instanceof FluidBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
 
-                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_still");
+            textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_still");
+        } else if (block instanceof CropBlock) {
+            jsonRoot.addProperty("parent", "block/" + id.getPath() + "_stage0");
+        } else if (block instanceof WallSignBlock wallSignBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
+
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
+
+            String woodName = wallSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
+            if (annoyingMods.contains(id.getNamespace())) {
+                woodName = extractWoodType(id.toString());
             }
-            case CropBlock ignored -> jsonRoot.addProperty("parent", "block/" + id.getPath() + "_stage0");
-            case WallSignBlock wallSignBlock -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            String itemTextureString = id.getNamespace() + ":item/" + woodName + "_sign";
+            textures.addProperty("layer0", itemTextureString);
+        } else if (block instanceof WallHangingSignBlock wallHangingSignBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-                String woodName = wallSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
-                if (annoyingMods.contains(id.getNamespace())) {
-                    woodName = extractWoodType(id.toString());
-                }
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
 
-                String itemTextureString = id.getNamespace() + ":item/" + woodName + "_sign";
-                textures.addProperty("layer0", itemTextureString);
+            String woodName = wallHangingSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
+            if (annoyingMods.contains(id.getNamespace())) {
+                woodName = extractWoodType(id.toString());
             }
-            case WallHangingSignBlock wallHangingSignBlock -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            textures.addProperty("layer0", id.getNamespace() + ":item/" + woodName + "_hanging_sign");
+        } else if (block instanceof FlowerPotBlock && !id.getNamespace().equals("minecraft")) {
+            jsonRoot.addProperty("parent", "minecraft:block/flower_pot_cross");
 
-                String woodName = wallHangingSignBlock.getWoodType().name().replaceFirst(id.getNamespace() + ":", "");
-                if (annoyingMods.contains(id.getNamespace())) {
-                    woodName = extractWoodType(id.toString());
-                }
+            String texture = id.getPath().replace("potted_", "");
 
-                textures.addProperty("layer0", id.getNamespace() + ":item/" + woodName + "_hanging_sign");
-            }
-            case FlowerPotBlock ignored when !id.getNamespace().equals("minecraft") -> {
-                jsonRoot.addProperty("parent", "minecraft:block/flower_pot_cross");
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
 
-                String texture = id.getPath().replace("potted_", "");
+            // TODO: Reimplement the double plant potted plant thing.
 
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            textures.addProperty("plant", id.getNamespace() + ":block/" + texture);
+        } else if (block instanceof TallPlantBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-                // TODO: Reimplement the double plant potted plant thing.
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
 
-                textures.addProperty("plant", id.getNamespace() + ":block/" + texture);
-            }
-            case TallPlantBlock ignored -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
+            textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_bottom");
+        } else if (block instanceof AbstractFireBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
 
-                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_bottom");
-            }
-            case AbstractFireBlock ignored -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
+            textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_0");
+        } else if (block instanceof StemBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
 
-                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath() + "_0");
-            }
-            case StemBlock ignored -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath());
+        } else if (block instanceof LeveledCauldronBlock) {
+            jsonRoot.addProperty("parent", id.getNamespace() + ":block/" + id.getPath() + "_full");
+        } else if (block instanceof SweetBerryBushBlock) {
+            jsonRoot.addProperty("parent", "minecraft:block/sweet_berry_bush_stage0");
+        } else if (block instanceof FrostedIceBlock) {
+            jsonRoot.addProperty("parent", "minecraft:block/frosted_ice_3");
+        } else if (block instanceof TripwireBlock) {
+            jsonRoot.addProperty("parent", "minecraft:block/tripwire_attached_nsew");
+        } else if (block instanceof RedstoneWireBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-                textures.addProperty("layer0", id.getNamespace() + ":block/" + id.getPath());
-            }
-            case LeveledCauldronBlock ignored -> jsonRoot.addProperty("parent", id.getNamespace() + ":block/" + id.getPath() + "_full");
-            case SweetBerryBushBlock ignored -> jsonRoot.addProperty("parent", "minecraft:block/sweet_berry_bush_stage0");
-            case FrostedIceBlock ignored -> jsonRoot.addProperty("parent", "minecraft:block/frosted_ice_3");
-            case TripwireBlock ignored -> jsonRoot.addProperty("parent", "minecraft:block/tripwire_attached_nsew");
-            case RedstoneWireBlock ignored -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
 
-                textures.addProperty("layer0", "minecraft:block/redstone_dust_dot");
-            }
-            case BubbleColumnBlock ignored -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            textures.addProperty("layer0", "minecraft:block/redstone_dust_dot");
+        } else if (block instanceof BubbleColumnBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-                textures.addProperty("layer0", "illicitblocks:item/bubble_column");
-            }
-            case CocoaBlock ignored -> jsonRoot.addProperty("parent", "minecraft:block/cocoa_stage2");
-            case NetherPortalBlock ignored -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
 
-                textures.addProperty("layer0", "minecraft:block/nether_portal");
-            }
-            case AirBlock ignored -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            textures.addProperty("layer0", "illicitblocks:item/bubble_column");
+        } else if (block instanceof CocoaBlock) {
+            jsonRoot.addProperty("parent", "minecraft:block/cocoa_stage2");
+        } else if (block instanceof NetherPortalBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-                textures.addProperty("layer0", "illicitblocks:item/" + id.getPath());
-            }
-            case PistonExtensionBlock ignored -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
 
-                textures.addProperty("layer0", "minecraft:block/piston_top");
-            }
-            case EndPortalBlock ignored -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            textures.addProperty("layer0", "minecraft:block/nether_portal");
+        } else if (block instanceof AirBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
 
-                textures.addProperty("layer0", "illicitblocks:item/end_portal");
-            }
-            case EndGatewayBlock ignored -> {
-                jsonRoot.addProperty("parent", "minecraft:item/generated");
-                JsonObject textures = new JsonObject();
-                jsonRoot.add("textures", textures);
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
 
-                textures.addProperty("layer0", "illicitblocks:item/end_gateway");
-            }
-            case WallBannerBlock ignored -> jsonRoot.addProperty("parent", "minecraft:item/template_banner");
-            case WallSkullBlock ignored -> jsonRoot.addProperty("parent", "minecraft:item/template_skull");
-            default -> {
-                Utils.debugLog("Default back to block for {}, class: {}", id, block.getClass());
-                jsonRoot.addProperty("parent", "block/" + id.getPath());
-            }
+            textures.addProperty("layer0", "illicitblocks:item/" + id.getPath());
+        } else if (block instanceof PistonExtensionBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
+
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
+
+            textures.addProperty("layer0", "minecraft:block/piston_top");
+        } else if (block instanceof EndPortalBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
+
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
+
+            textures.addProperty("layer0", "illicitblocks:item/end_portal");
+        } else if (block instanceof EndGatewayBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/generated");
+
+            JsonObject textures = new JsonObject();
+            jsonRoot.add("textures", textures);
+
+            textures.addProperty("layer0", "illicitblocks:item/end_gateway");
+        } else if (block instanceof WallBannerBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/template_banner");
+        } else if (block instanceof WallSkullBlock) {
+            jsonRoot.addProperty("parent", "minecraft:item/template_skull");
+        } else {
+            Utils.debugLog("Default back to block for {}, class: {}", id, block.getClass());
+            jsonRoot.addProperty("parent", "block/" + id.getPath());
         }
 
         return jsonRoot.toString();
