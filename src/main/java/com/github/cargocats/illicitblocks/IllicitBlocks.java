@@ -55,6 +55,7 @@ public class IllicitBlocks implements ModInitializer {
         Registry.register(Registries.ITEM_GROUP, ILLICIT_BLOCKS_ITEM_GROUP_KEY, ILLICIT_BLOCKS_ITEM_GROUP);
 
         colorMap.put(new Identifier("minecraft", "water"), ColorHelper.Argb.getArgb(255, 63, 118, 228));
+        colorMap.put(new Identifier("minecraft", "water_cauldron"), ColorHelper.Argb.getArgb(255, 63, 118, 228));
         colorMap.put(new Identifier("minecraft", "redstone_wire"), ColorHelper.Argb.getArgb(255, 189, 48, 49));
         colorMap.put(new Identifier("minecraft", "attached_melon_stem"), ColorHelper.Argb.getArgb(255, 0, 124, 0));
         colorMap.put(new Identifier("minecraft", "attached_pumpkin_stem"), ColorHelper.Argb.getArgb(255, 0, 124, 0));
@@ -163,7 +164,7 @@ public class IllicitBlocks implements ModInitializer {
                         }
                     }
 
-                    tag.put("BlockState", stateTag);
+                    tag.put(BlockItem.BLOCK_STATE_TAG_KEY, stateTag);
                     tag.putBoolean(MOD_ID + "_tooltip", true);
 
                     return stack;

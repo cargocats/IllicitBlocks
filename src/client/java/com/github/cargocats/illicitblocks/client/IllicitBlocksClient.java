@@ -4,6 +4,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
@@ -29,7 +30,7 @@ public class IllicitBlocksClient implements ClientModInitializer {
             NbtCompound tag = itemStack.getNbt();
 
             if (tag != null && tag.contains(MOD_ID + "_tooltip")) {
-                NbtCompound stateTag = tag.getCompound("BlockState");
+                NbtCompound stateTag = tag.getCompound(BlockItem.BLOCK_STATE_TAG_KEY);
 
                 if (stateTag != null) {
                     for (String key: stateTag.getKeys()) {
