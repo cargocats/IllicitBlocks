@@ -1,6 +1,3 @@
 {
-  "illicitblocks.mod_name": "Illicit Blocks",
-  "illicitblocks.toast.restart": "Dumped modded blocks, restart minecraft to take effect",
-  "illicitblocks.placeholder_description": "Not seeing your modded blocks? Restart Minecraft to recognize new blocks.",
-  "illicitblocks.item_group": "Illicit Blocks"
+  "illicitblocks.mod_name": "Illicit Blocks"
 }

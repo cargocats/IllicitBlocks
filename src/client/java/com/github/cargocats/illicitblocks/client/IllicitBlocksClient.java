@@ -14,7 +14,6 @@ import net.minecraft.util.Identifier;
 
 import static com.github.cargocats.illicitblocks.IllicitBlocks.*;
 
-
 public class IllicitBlocksClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
