@@ -40,7 +40,7 @@ public class IllicitBlocks implements ModInitializer {
     public static final RegistryKey<ItemGroup> ILLICIT_BLOCKS_ITEM_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, "illicitblocks_item_group"));
     public static final ItemGroup ILLICIT_BLOCKS_ITEM_GROUP = FabricItemGroup.builder()
             .icon(() -> new ItemStack(Items.BARRIER))
-            .displayName(Text.translatable("illicitblocks.item_group"))
+            .displayName(Text.translatable("illicitblocks.mod_name"))
             .build();
 
     @Override
