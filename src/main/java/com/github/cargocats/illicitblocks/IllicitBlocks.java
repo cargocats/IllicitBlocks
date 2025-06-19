@@ -32,12 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class IllicitBlocks implements ModInitializer {
     public static final String MOD_ID = "illicitblocks";
     public static final Logger LOG = LoggerFactory.getLogger(MOD_ID);
-    public static ArrayList<Identifier> moddedBlocks = new ArrayList<>();
     public static ArrayList<Identifier> createdBlockItems = new ArrayList<>();
     public static ArrayList<ItemConvertible> toBeTinted = new ArrayList<>();
     public static final HashMap<Identifier, Integer> colorMap = new HashMap<>();
@@ -48,7 +46,7 @@ public class IllicitBlocks implements ModInitializer {
     public static final RegistryKey<ItemGroup> ILLICIT_BLOCKS_ITEM_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, "illicitblocks_item_group"));
     public static final ItemGroup ILLICIT_BLOCKS_ITEM_GROUP = FabricItemGroup.builder()
             .icon(() -> new ItemStack(Items.BARRIER))
-            .displayName(Text.translatable("illicitblocks.item_group"))
+            .displayName(Text.translatable("illicitblocks.mod_name"))
             .build();
 
     @Override
@@ -76,47 +74,17 @@ public class IllicitBlocks implements ModInitializer {
 
     public static ArrayList<IllicitBlockItem> registerBlockItems() {
         ArrayList<IllicitBlockItem> collected = new ArrayList<>();
-        AtomicBoolean hasModdedBlocks = new AtomicBoolean(false);
-        AtomicBoolean newBlock = new AtomicBoolean(false);
 
         RegistryEntryAddedCallback.event(Registries.BLOCK).register((ignored, id, block) -> {
-            if ("minecraft".equals(id.getNamespace())) {
-                IllicitBlockItem item = tryRegisterBlock(id);
-                if (item != null) collected.add(item);
-            } else {
-                if (moddedBlocks.contains(id)) {
-                    IllicitBlockItem item = tryRegisterBlock(id);
-                    if (item != null) collected.add(item);
-                } else {
-                    newBlock.set(true);
-                }
-                hasModdedBlocks.set(true);
-            }
+            IllicitBlockItem item = tryRegisterBlock(id);
+            if (item != null) collected.add(item);
         });
 
         Registries.BLOCK.forEach(block -> {
             Identifier id = Registries.BLOCK.getId(block);
-
-            if ("minecraft".equals(id.getNamespace())) {
-                IllicitBlockItem item = tryRegisterBlock(id);
-                if (item != null) collected.add(item);
-            } else {
-                if (moddedBlocks.contains(id)) {
-                    IllicitBlockItem item = tryRegisterBlock(id);
-                    if (item != null) collected.add(item);
-                } else {
-                    newBlock.set(true);
-                }
-                hasModdedBlocks.set(true);
-            }
+            IllicitBlockItem item = tryRegisterBlock(id);
+            if (item != null) collected.add(item);
         });
-
-        if (hasModdedBlocks.get() && moddedBlocks.isEmpty() || newBlock.get()) {
-            ItemStack placeholder = new ItemStack(Items.BARRIER);
-            placeholder.set(DataComponentTypes.CUSTOM_NAME, Text.translatable("illicitblocks.placeholder_description"));
-            ItemGroupEvents.modifyEntriesEvent(ILLICIT_BLOCKS_ITEM_GROUP_KEY)
-                    .register(group -> group.add(placeholder));
-        }
 
         return collected;
     }
