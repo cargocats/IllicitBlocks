@@ -5,7 +5,8 @@ import com.github.cargocats.illicitblocks.client.api.AdditionalItemAssetRegistra
 import com.github.cargocats.illicitblocks.client.api.MyDefinitionDuck;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.item.ItemAsset;
-import net.minecraft.client.item.ItemAssetsLoader;
+import net.minecraft.client.model.ItemAssetsLoader;
+import net.minecraft.client.render.item.model.ItemModel;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 @Mixin(ItemAssetsLoader.class)
 public class ItemAssetsLoaderMixin {
     @ModifyExpressionValue(
-            method = "method_65932",
+            method = "method_65731",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/Util;combineSafe(Ljava/util/List;)Ljava/util/concurrent/CompletableFuture;"
@@ -37,14 +38,14 @@ public class ItemAssetsLoaderMixin {
         });
     }
 
-    @Mixin(targets = "net.minecraft.client.item.ItemAssetsLoader$Definition")
+    @Mixin(targets = "net.minecraft.client.model.ItemAssetsLoader$Definition")
     private static abstract class DefinitionMixin implements MyDefinitionDuck {
         @Shadow
         public abstract Identifier id();
 
         @Shadow
         @Nullable
-        public abstract ItemAsset clientItemInfo();
+        public abstract ItemModel.Unbaked model();
 
         static {
             try {
@@ -52,11 +53,11 @@ public class ItemAssetsLoaderMixin {
                 var ctorHandle = MethodHandles.lookup().findConstructor(
                         DefinitionMixin.class,
                         MethodType.methodType(
-                                void.class, Identifier.class, ItemAsset.class
+                                void.class, Identifier.class, ItemModel.Unbaked.class
                         )
                 ).asType(
                         MethodType.methodType(
-                                MyDefinitionDuck.class, Identifier.class, ItemAsset.class
+                                MyDefinitionDuck.class, Identifier.class, ItemModel.Unbaked.class
                         )
                 );
                 MyDefinitionDuck.CTOR.setValue((id, asset) -> {
@@ -78,7 +79,7 @@ public class ItemAssetsLoaderMixin {
 
         @Override
         public ItemAsset modid$myDefinitionDuck$itemAsset() {
-            return this.clientItemInfo();
+            return new ItemAsset(this.model());
         }
 
         @Unique

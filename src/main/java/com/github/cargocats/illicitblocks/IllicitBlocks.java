@@ -55,14 +55,15 @@ public class IllicitBlocks implements ModInitializer {
     public static ArrayList<IllicitBlockItem> registerBlockItems() {
         ArrayList<IllicitBlockItem> collected = new ArrayList<>();
 
-        RegistryEntryAddedCallback.allEntries(Registries.BLOCK, refBlock -> {
-            Block block = refBlock.value();
-            Identifier id = Registries.BLOCK.getId(block);
-
+        RegistryEntryAddedCallback.event(Registries.BLOCK).register((ignored, id, block) -> {
             IllicitBlockItem item = tryRegisterBlock(id);
-            if (item != null) {
-                collected.add(item);
-            }
+            if (item != null) collected.add(item);
+        });
+
+        Registries.BLOCK.forEach(block -> {
+            Identifier id = Registries.BLOCK.getId(block);
+            IllicitBlockItem item = tryRegisterBlock(id);
+            if (item != null) collected.add(item);
         });
 
         return collected;

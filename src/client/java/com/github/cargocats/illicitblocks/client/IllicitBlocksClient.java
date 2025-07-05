@@ -100,22 +100,19 @@ public class IllicitBlocksClient implements ClientModInitializer {
                     new SpecialItemModel.Unbaked(
                             Identifier.ofVanilla("item/template_banner"),
                             new BannerModelRenderer.Unbaked(wallBannerBlock.getColor())
-                    ),
-                    ItemAsset.Properties.DEFAULT
+                    )
             ));
             case WallSkullBlock wallSkullBlock -> context.addAsset(id, new ItemAsset(
                     new SpecialItemModel.Unbaked(
                             Identifier.ofVanilla("item/template_skull"),
                             new HeadModelRenderer.Unbaked(wallSkullBlock.getSkullType())
-                    ),
-                    ItemAsset.Properties.DEFAULT
+                    )
             ));
             default -> context.addAsset(id, new ItemAsset(
                     new BasicItemModel.Unbaked(
                             id,
                             tintSources
-                    ),
-                    ItemAsset.Properties.DEFAULT
+                    )
             ));
         }
     }
