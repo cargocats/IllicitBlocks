@@ -4,11 +4,8 @@ import com.github.cargocats.illicitblocks.client.api.AdditionalItemAssetRegistra
 import com.github.cargocats.illicitblocks.client.api.AdditionalItemAssetRegistrationCallbackContextImpl;
 import com.github.cargocats.illicitblocks.client.api.MyDefinitionDuck;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.item.ItemAsset;
 import net.minecraft.client.item.ItemAssetsLoader;
-import net.minecraft.registry.ContextSwappableRegistryLookup;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,10 +28,11 @@ public class ItemAssetsLoaderMixin {
                     target = "Lnet/minecraft/util/Util;combineSafe(Ljava/util/List;)Ljava/util/concurrent/CompletableFuture;"
             )
     )
-    private static CompletableFuture<List<MyDefinitionDuck>> appendAdditional(CompletableFuture<List<MyDefinitionDuck>> original, @Local(argsOnly = true) DynamicRegistryManager.Immutable immutable) {
+    private static CompletableFuture<List<MyDefinitionDuck>> appendAdditional(CompletableFuture<List<MyDefinitionDuck>> original) {
         return original.thenApply(list -> {
-            AdditionalItemAssetRegistrationCallbackContextImpl context = new AdditionalItemAssetRegistrationCallbackContextImpl(new ArrayList<>(list), new ContextSwappableRegistryLookup(immutable));
+            AdditionalItemAssetRegistrationCallbackContextImpl context = new AdditionalItemAssetRegistrationCallbackContextImpl(new ArrayList<>(list));
             AdditionalItemAssetRegistrationCallback.EVENT.invoker().onItemAssetRegistration(context);
+
             return List.copyOf(context.definitions());
         });
     }

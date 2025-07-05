@@ -2,7 +2,6 @@ package com.github.cargocats.illicitblocks.client.api;
 
 import com.google.common.base.Functions;
 import net.minecraft.client.item.ItemAsset;
-import net.minecraft.registry.ContextSwappableRegistryLookup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import org.jetbrains.annotations.Nullable;
@@ -10,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-public record AdditionalItemAssetRegistrationCallbackContextImpl(ArrayList<MyDefinitionDuck> definitions, ContextSwappableRegistryLookup contextSwappableRegistryLookup) implements AdditionalItemAssetRegistrationCallback.Context {
+public record AdditionalItemAssetRegistrationCallbackContextImpl(ArrayList<MyDefinitionDuck> definitions) implements AdditionalItemAssetRegistrationCallback.Context {
     @Override
     public Stream<Pair<Identifier, ItemAsset>> streamAssets() {
         return definitions.stream().map(it -> new Pair<>(
@@ -34,19 +33,6 @@ public record AdditionalItemAssetRegistrationCallbackContextImpl(ArrayList<MyDef
             throw new UnsupportedOperationException("attempting to overwrite item asset");
         }
 
-        definitions.add(MyDefinitionDuck.create(
-                        id,
-                        contextSwappableRegistryLookup.hasEntries()
-                                ? asset.withContextSwapper(
-                                contextSwappableRegistryLookup.createContextSwapper()
-                        )
-                                : asset
-                )
-        );
-    }
-
-    @Override
-    public ContextSwappableRegistryLookup getLookup() {
-        return contextSwappableRegistryLookup;
+        definitions.add(MyDefinitionDuck.create(id, asset));
     }
 }

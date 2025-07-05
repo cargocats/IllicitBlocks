@@ -6,8 +6,6 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.item.ItemAsset;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
-import net.minecraft.registry.ContextSwappableRegistryLookup;
-import net.minecraft.registry.ContextSwapper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import org.jetbrains.annotations.Nullable;
@@ -39,12 +37,6 @@ public interface AdditionalItemAssetRegistrationCallback {
 
         default boolean hasAsset(Identifier id) {
             return getAsset(id) != null;
-        }
-
-        ContextSwappableRegistryLookup getLookup();
-
-        default ContextSwapper createContextSwapper() {
-            return getLookup().createContextSwapper();
         }
 
         Stream<Pair<Identifier, ItemAsset>> streamAssets();
